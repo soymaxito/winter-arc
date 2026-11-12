@@ -2,7 +2,7 @@
 
 A season of showing up. Personal habit and gym tracker, built as an installable web app.
 
-- **Hosting:** Netlify (static, no build step), deploys from `main`
+- **Hosting:** Cloudflare (static, no build step; `_headers` + `wrangler.jsonc`), deploys from `main`. `netlify.toml` kept for Netlify too.
 - **Sync:** Supabase (`winter_arc_state` table, one private row per user, row-level security)
 - **Sign-in:** email + password (Supabase auth, email confirmation off)
 - **Offline:** service worker caches the app; logs save on the device and sync when back online
