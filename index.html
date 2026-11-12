@@ -1,0 +1,1094 @@
+<!DOCTYPE html>
+<html lang="en-GB">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="theme-color" content="#060606">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="Winter Arc">
+<link rel="manifest" href="manifest.webmanifest">
+<link rel="apple-touch-icon" href="icons/apple-touch-icon.png">
+<link rel="icon" type="image/png" sizes="192x192" href="icons/icon-192.png">
+<title>Winter Arc</title>
+<style>
+@font-face{font-family:'Inter';font-style:normal;font-weight:100 900;font-display:swap;src:url(fonts/inter.woff2) format('woff2')}
+.statusbar{position:fixed;top:0;left:0;right:0;height:var(--st);background:var(--bg);z-index:90;pointer-events:none}
+html[data-theme=light] .statusbar{background:#111110}
+.authp{font-size:15px;color:var(--ink2);line-height:1.55;margin:0 2px 6px}
+.authin{width:100%;background:var(--field);border:1px solid var(--line2);border-radius:16px;color:var(--ink);font-family:var(--sans);font-size:18px;padding:15px 16px;outline:none;margin-top:10px}
+.authin:focus{border-color:var(--gold)}
+.authin.code{font-size:28px;letter-spacing:.3em;text-align:center}
+.autherr{color:#e3a2a2;font-size:14px;min-height:20px;margin-top:10px}
+html[data-theme=light] .autherr{color:#a8444a}
+.linkbtn{background:none;border:none;color:var(--ink3);font-size:14px;text-decoration:underline;cursor:pointer;margin:16px auto 0;display:block;padding:8px}
+.impta{width:100%;min-height:160px;background:var(--field);border:1px solid var(--line2);border-radius:16px;color:var(--ink);font-family:ui-monospace,Menlo,monospace;font-size:12px;padding:12px;outline:none;resize:vertical}
+.update{position:fixed;left:50%;top:calc(12px + var(--st));transform:translateX(-50%);z-index:160;background:var(--ink);color:var(--bg);border:none;border-radius:999px;padding:12px 18px;font-size:14px;font-weight:500;box-shadow:0 10px 30px rgba(0,0,0,.45);cursor:pointer}
+:root{
+  --bg:#060606; --surfA:#1b1b1d; --surfB:#121214; --chipA:#262629; --chip:#1c1c1f;
+  --edge:rgba(255,255,255,.13); --line:rgba(255,255,255,.09); --line2:rgba(255,255,255,.17);
+  --ink:#f6f5f2; --ink2:#dcdbd7; --ink3:#b2b1ac; --ink4:#85847e;
+  --track:#3b3b3f; --track2:#2b2b2f; --field:#0d0d0f; --icon:#f0efeb; --navbg:rgba(26,26,28,.94); --sheetA:#161618; --sheetB:#0c0c0d;
+  --gold:#ecd47c; --acc:#ecd47c; --green:#ecd47c; --ongold:#14130f;
+  --sans:'Inter',system-ui,-apple-system,sans-serif; --mono:'Inter',system-ui,sans-serif; --heavy:'Inter',system-ui,sans-serif;
+  --sb:env(safe-area-inset-bottom,0px); --st:env(safe-area-inset-top,0px);
+  --surf:linear-gradient(180deg,var(--surfA),var(--surfB)); --surf2:linear-gradient(180deg,var(--chipA),var(--chip));
+  --hi:inset 0 1px 0 rgba(255,255,255,.07); --drop:0 8px 20px rgba(0,0,0,.55);
+}
+html[data-theme=light]{
+  --bg:#f1f0ec; --surfA:#ffffff; --surfB:#fbfaf7; --chipA:#ffffff; --chip:#f2f1ed;
+  --edge:rgba(0,0,0,.10); --line:rgba(0,0,0,.08); --line2:rgba(0,0,0,.15);
+  --ink:#0f0f0e; --ink2:#2b2a27; --ink3:#4f4e49; --ink4:#73726c;
+  --track:#d6d4cc; --track2:#e5e3dd; --field:#f4f3ef; --icon:#1a1a18; --navbg:rgba(255,255,255,.94); --sheetA:#ffffff; --sheetB:#f6f5f1;
+  --gold:#a07c14; --acc:#a07c14; --green:#a07c14;
+  --hi:inset 0 1px 0 rgba(255,255,255,1); --drop:0 6px 18px rgba(0,0,0,.08);
+}
+html[data-theme=light] .glow{display:none}
+html[data-theme=light] .stack,html[data-theme=light] .grp,html[data-theme=light] .wtile,html[data-theme=light] .st{box-shadow:0 1px 2px rgba(0,0,0,.05),0 4px 14px rgba(0,0,0,.05)}
+.trk{stroke:var(--track)} .trk2{stroke:var(--track2)} .dotf{fill:var(--track)} .tdy{stroke:var(--ink)}
+*{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+[hidden]{display:none!important}
+html,body{margin:0;background:var(--bg);color:var(--ink);font-family:var(--sans);font-weight:400;-webkit-font-smoothing:antialiased;font-feature-settings:'tnum' 1}
+body{min-height:100vh;overflow-x:hidden}
+body.locked{overflow:hidden}
+button{font-family:inherit;color:inherit;font-weight:inherit}
+.glow{position:fixed;left:50%;top:-260px;width:620px;height:560px;transform:translateX(-50%);pointer-events:none;background:radial-gradient(50% 50% at 50% 50%,rgba(233,210,122,.09),transparent 70%)}
+.app{position:relative;z-index:1;max-width:480px;margin:0 auto;padding:calc(14px + var(--st)) 20px calc(118px + var(--sb))}
+.view{display:none}.view.on{display:block;animation:fade .35s ease}
+@keyframes fade{from{opacity:0;transform:translateY(6px)}to{opacity:1;transform:none}}
+
+.bar{display:flex;justify-content:space-between;align-items:center;min-height:48px}
+.eyebrow{font-size:11px;font-weight:500;letter-spacing:.32em;color:var(--ink3);text-transform:uppercase}
+.cbtn{width:46px;height:46px;border-radius:50%;border:1px solid var(--line2);background:var(--surf2);box-shadow:var(--hi),var(--drop);display:grid;place-items:center;cursor:pointer;font-size:22px;font-weight:200;line-height:1}
+.cbtn:active{transform:scale(.95)}
+.cbtn svg{width:18px;height:18px}
+.title{font-size:34px;font-weight:400;letter-spacing:-.01em;margin:6px 0 2px;line-height:1.1}
+.subt{color:var(--ink3);font-size:14px;margin-bottom:20px}
+.mantra{font-size:14px;color:var(--ink3);margin:2px 0 18px;font-style:italic}
+
+/* cards */
+.stack{position:relative;background:var(--surf);border:1px solid var(--edge);border-radius:22px;box-shadow:var(--hi);margin:0 0 10px;cursor:pointer;transition:transform .12s,background .2s}
+.stack:active{transform:scale(.985)}
+.stack.flat{cursor:default}.stack.flat:active{transform:none}
+.stack.hero{border-radius:28px;box-shadow:var(--hi),0 20px 40px rgba(0,0,0,.6);background:var(--surf)}
+
+.ring{position:relative;flex:none;display:grid;place-items:center}
+.ring svg{position:absolute;inset:0}
+.ring .ic{position:relative;color:var(--icon)}
+.ring .ic svg{position:static;display:block}
+
+.act{display:flex;align-items:center;gap:14px;padding:12px 14px}
+.act .nm{font-size:17px;font-weight:500;flex:1;min-width:0;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.act .val{text-align:right}
+.act .val b{display:block;font-weight:500;font-size:16px;color:var(--ink)}
+.act .val small{font-size:12px;color:var(--ink3)}
+
+.trow{display:flex;align-items:center;gap:14px;padding:12px 12px 12px 14px}
+.trow .tx{flex:1;min-width:0}
+.trow .nm{font-size:17px;font-weight:500}
+.trow .pg{font-size:13.5px;color:var(--ink3);margin-top:3px}
+.trow.met .pg{color:var(--gold)}
+.bar-p{height:3px;border-radius:2px;background:var(--track);margin-top:10px;overflow:visible}
+.bar-p i{display:block;height:100%;background:var(--gold);border-radius:2px;box-shadow:0 0 8px rgba(233,210,122,.55);transition:width .3s}
+.qbtn{min-width:48px;height:48px;border-radius:16px;border:1px solid var(--line2);background:var(--surf2);box-shadow:var(--hi);font-size:20px;font-weight:400;cursor:pointer;padding:0 10px;display:grid;place-items:center}
+.qbtn:active{transform:scale(.95)}
+.qbtn.done{background:linear-gradient(180deg,#f1dc87,#d6bd5f);border-color:transparent;color:#14130f;box-shadow:0 0 16px rgba(233,210,122,.35);font-weight:500}
+.qbtn.run{border-color:rgba(233,210,122,.6);color:var(--gold)}
+
+/* arc hero */
+.arc-top{display:flex;align-items:center;gap:20px;padding:20px 20px 14px}
+.arc-top .big{position:relative;width:124px;height:124px;flex:none}
+.arc-top .big svg{position:absolute;inset:0;transform:rotate(-90deg)}
+.arc-top .big .c{position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center}
+.arc-top .big .n{font-size:48px;font-weight:300;line-height:1;letter-spacing:-.03em}
+.arc-top .big .s{font-size:12px;color:var(--ink3);margin-top:4px}
+.arc-top .side{flex:1;min-width:0;display:flex;flex-direction:column;gap:12px}
+.arc-top .side .an{font-size:16px;font-weight:500;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.kv b{font-size:24px;font-weight:400}
+.kv b span{font-size:13px;color:var(--ink3)}
+.kv small{display:block;font-size:11px;letter-spacing:.12em;color:var(--ink3);text-transform:uppercase;margin-top:1px}
+.hexrow{display:grid;grid-template-columns:repeat(7,1fr);padding:4px 16px 18px;text-align:center}
+.hexrow .dl{font-size:12px;color:var(--ink3);height:14px;display:flex;align-items:center;justify-content:center}
+.hexrow .dl.today{color:var(--ink);font-weight:500}
+.hexrow .dn{font-size:12px;color:var(--ink3);margin-top:3px}
+.hex{width:26px;height:26px;margin:6px auto 0;display:block;overflow:visible}
+.label-sect{font-size:12px;font-weight:500;letter-spacing:.24em;text-transform:uppercase;color:var(--ink3);margin:26px 2px 12px;display:flex;justify-content:space-between;align-items:baseline}
+.label-sect em{font-style:normal;letter-spacing:.04em;text-transform:none}
+
+/* widgets */
+.widgets{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin:10px 0 4px}
+.wtile{aspect-ratio:1;border-radius:26px;border:1px solid var(--edge);background:var(--surf);box-shadow:var(--hi);display:grid;place-items:center;position:relative;cursor:pointer;overflow:hidden}
+.wtile.ring svg.txt{position:absolute;inset:8px;width:calc(100% - 16px);height:calc(100% - 16px);animation:spin 40s linear infinite}
+@keyframes spin{to{transform:rotate(360deg)}}
+@media (prefers-reduced-motion:reduce){.wtile.ring svg.txt,.tick-in{animation:none!important}}
+.wtile .plus{width:56px;height:56px;border-radius:50%;background:linear-gradient(180deg,#f1dc87,#d6bd5f);color:#14130f;display:grid;place-items:center;font-size:28px;font-weight:300;box-shadow:0 0 22px rgba(233,210,122,.35)}
+.mini{display:grid;grid-template-columns:repeat(7,1fr);gap:6px;width:76%}
+.mini i{aspect-ratio:1;border-radius:50%;border:1px solid var(--track)}
+.mini i.l1{border:1.5px solid rgba(233,210,122,.45)}.mini i.l2{background:rgba(233,210,122,.45);border-color:transparent}.mini i.l3{background:var(--gold);border-color:transparent;box-shadow:0 0 6px rgba(233,210,122,.5)}
+.wtile .cap{position:absolute;bottom:12px;left:0;right:0;text-align:center;font-size:10px;color:var(--ink3);letter-spacing:.14em;text-transform:uppercase}
+
+.dsw{display:flex;align-items:center;gap:8px;color:var(--ink2);font-size:14px;margin-bottom:4px}
+.dsw button{background:none;border:none;color:var(--ink2);font-size:18px;cursor:pointer;padding:2px 6px;min-width:32px;min-height:32px}
+.dsw button:disabled{opacity:.2}
+.dsw .back{color:var(--gold);font-size:12px;cursor:pointer;border-bottom:1px solid rgba(233,210,122,.4)}
+
+nav{position:fixed;left:0;right:0;bottom:0;z-index:60;padding:10px 18px calc(16px + var(--sb));background:linear-gradient(180deg,transparent,var(--bg) 45%);display:flex;justify-content:center}
+nav .in{display:flex;align-items:center;gap:4px;padding:6px;border-radius:30px;background:var(--navbg);border:1px solid var(--line2);box-shadow:var(--hi),0 12px 30px rgba(0,0,0,.7);backdrop-filter:blur(20px);-webkit-backdrop-filter:blur(20px)}
+nav button{display:flex;align-items:center;justify-content:center;gap:8px;background:transparent;border:none;color:var(--ink2);border-radius:22px;height:44px;min-width:52px;padding:0 14px;cursor:pointer;font-size:13px;font-weight:500;transition:all .2s}
+nav button svg{width:20px;height:20px}
+nav button span{display:none}
+nav button.on{background:var(--ink);color:var(--bg);padding:0 16px}
+nav button.on svg{width:16px;height:16px}
+nav button.on span{display:inline}
+
+.scrim{position:fixed;inset:0;background:rgba(0,0,0,.65);z-index:100;opacity:0;pointer-events:none;transition:opacity .25s;backdrop-filter:blur(2px)}
+.scrim.on{opacity:1;pointer-events:auto}
+.sheet{position:fixed;left:0;right:0;bottom:0;z-index:101;max-width:480px;margin:0 auto;background:linear-gradient(180deg,var(--sheetA),var(--sheetB));border:1px solid var(--line2);border-bottom:none;border-radius:30px 30px 0 0;box-shadow:var(--hi),0 -20px 60px rgba(0,0,0,.6);transform:translateY(105%);transition:transform .34s cubic-bezier(.2,.8,.2,1);max-height:92vh;display:flex;flex-direction:column}
+.sheet:not(.on){visibility:hidden;transition:transform .34s cubic-bezier(.2,.8,.2,1),visibility 0s .34s}
+.sheet.on{transform:none}
+.sheet.full{top:calc(10px + var(--st));max-height:none}
+.sheet .grab{width:38px;height:4px;border-radius:2px;background:var(--track);margin:10px auto 0;flex:none}
+.sheet .sc{overflow-y:auto;padding:8px 20px calc(28px + var(--sb));-webkit-overflow-scrolling:touch}
+.sh-bar{display:flex;justify-content:space-between;align-items:center;margin:6px 0 4px}
+.sh-title{font-size:30px;font-weight:300;margin:14px 0 16px;line-height:1.1}
+.x-red{color:var(--ink2);font-size:16px}.ok-green{color:var(--gold);font-size:18px}
+.cbtn.dis{opacity:.3;pointer-events:none}
+
+.pick{padding:18px 18px 16px;overflow:hidden}
+.pick .h{display:flex;justify-content:space-between;align-items:center}
+.pick .h b{font-size:19px;font-weight:400}
+.pick .h span{font-size:20px;color:var(--ink3)}
+.pick p{margin:6px 0 12px;font-size:14px;color:var(--ink2)}
+.ticker{overflow:hidden;white-space:nowrap;font-size:13px;color:var(--ink3);mask-image:linear-gradient(90deg,transparent,#000 8%,#000 92%,transparent);-webkit-mask-image:linear-gradient(90deg,transparent,#000 8%,#000 92%,transparent)}
+.ticker .tick-in{display:inline-block;animation:tick 26s linear infinite}
+.ticker .tick-in em{font-style:normal;color:var(--ink2)}
+.ticker .tick-in s{text-decoration:none;color:var(--gold);opacity:.6}
+@keyframes tick{to{transform:translateX(-50%)}}
+
+.fl{font-size:12px;color:var(--ink3);margin:18px 6px 8px;letter-spacing:.04em}
+.grp{background:var(--surf);border:1px solid var(--edge);border-radius:20px;box-shadow:var(--hi);overflow:hidden}
+.grp .r{display:flex;align-items:center;justify-content:space-between;gap:10px;padding:14px 16px;border-bottom:1px solid var(--line);font-size:16px;font-weight:500}
+.grp .r:last-child{border-bottom:none}
+.grp input[type=text],.grp input[type=number]{width:100%;background:transparent;border:none;outline:none;color:var(--ink);font-family:var(--sans);font-size:16px;font-weight:400}
+.grp input::placeholder{color:var(--ink4)}
+.grp input[type=date]{background:var(--field);border:1px solid var(--line2);border-radius:12px;color:var(--ink);font-family:var(--sans);font-size:14px;padding:8px 10px;color-scheme:dark}
+.syms{display:grid;grid-template-columns:repeat(7,1fr);gap:8px;padding:14px}
+.syms button{aspect-ratio:1;border-radius:14px;border:1px solid transparent;background:var(--chip);cursor:pointer;display:grid;place-items:center;color:var(--icon)}
+.syms button svg{width:20px;height:20px}
+.syms button.on{border-color:var(--gold);color:var(--gold);box-shadow:0 0 12px rgba(233,210,122,.2)}
+.cols{display:flex;gap:12px;padding:14px 16px;flex-wrap:wrap}
+.cols button{width:30px;height:30px;border-radius:50%;border:none;cursor:pointer;background:var(--c)}
+.cols button.on{box-shadow:0 0 0 2px var(--surfB),0 0 0 3.5px var(--c)}
+.seg{display:flex;background:var(--field);border-radius:12px;padding:3px;gap:3px;border:1px solid var(--line)}
+.seg button{border:none;background:transparent;color:var(--ink3);font-size:13px;padding:7px 11px;border-radius:9px;cursor:pointer;font-weight:400}
+.seg button.on{background:var(--card2);color:var(--ink);box-shadow:var(--hi)}
+.sw{position:relative;width:50px;height:30px;border-radius:999px;background:var(--track);border:none;cursor:pointer;flex:none}
+.sw::after{content:"";position:absolute;top:3px;left:3px;width:24px;height:24px;border-radius:50%;background:#fff;transition:transform .2s}
+.sw.on{background:var(--gold)}.sw.on::after{transform:translateX(20px);background:#14130f}
+.wide{display:flex;align-items:center;justify-content:center;gap:8px;width:100%;padding:16px;border-radius:18px;border:1px solid var(--line2);background:var(--surf2);box-shadow:var(--hi);font-size:16px;font-weight:500;cursor:pointer;margin-top:14px}
+.wide.prim{background:var(--ink);color:var(--bg);border-color:var(--ink);font-weight:500}
+.wide.acc{background:linear-gradient(180deg,#f1dc87,#d6bd5f);color:#14130f;border-color:transparent;font-weight:500;box-shadow:0 0 22px rgba(233,210,122,.25)}
+.wide.danger{color:#d9a3a3;border-color:rgba(217,163,163,.25)}
+.wide:active{transform:scale(.99)}
+.stepper{display:flex;align-items:center;gap:10px}
+.stepper button{width:32px;height:32px;border-radius:50%;border:1px solid var(--line2);background:var(--surf2);font-size:16px;cursor:pointer}
+.stepper b{font-size:15px;min-width:30px;text-align:center;font-weight:400}
+
+.agrid{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.acard{position:relative;padding:14px;min-height:124px;display:flex;flex-direction:column;justify-content:flex-end;gap:3px;margin:0}
+.acard .ring{position:absolute;top:14px;left:14px}
+.acard b{font-size:15px;font-weight:400}
+.acard small{font-size:11px;color:var(--ink3)}
+.acard .tickc{position:absolute;top:14px;right:14px;width:26px;height:26px;border-radius:50%;background:var(--gold);color:#14130f;display:none;place-items:center;font-size:13px;font-weight:600}
+.acard.on{border-color:rgba(233,210,122,.45)}
+.acard.on .tickc{display:grid}
+.goalrow{display:flex;align-items:center;gap:10px;padding:12px 14px;border-bottom:1px solid var(--line)}
+.goalrow:last-child{border-bottom:none}
+.goalrow .nm{flex:1;font-size:14px;font-weight:400;min-width:0}
+
+.lg-head{display:flex;align-items:center;gap:14px;margin:12px 0 6px}
+.lg-head .nm{font-size:22px;font-weight:400}
+.lg-head small{display:block;color:var(--ink3);font-size:12px;margin-top:2px}
+.bignum{font-weight:300;font-size:84px;text-align:center;line-height:1;margin:22px 0 4px;letter-spacing:-.03em}
+.bignum.mono{font-size:64px}
+.bigcap{text-align:center;font-size:11px;letter-spacing:.24em;color:var(--ink3);text-transform:uppercase}
+.tally-btns{display:grid;grid-template-columns:1fr 1.6fr;gap:12px;margin-top:22px}
+.tb{padding:20px;border-radius:22px;border:1px solid var(--line2);background:var(--surf2);box-shadow:var(--hi);font-size:26px;font-weight:300;cursor:pointer}
+.tb.plus{background:linear-gradient(180deg,#f1dc87,#d6bd5f);border-color:transparent;color:#14130f;font-weight:300;box-shadow:0 0 24px rgba(233,210,122,.3)}
+.tb:active{transform:scale(.97)}
+.chips{display:flex;gap:8px;flex-wrap:wrap;justify-content:center;margin-top:16px}
+.chip{padding:9px 14px;border-radius:999px;border:1px solid var(--line2);background:var(--surf2);font-size:13px;color:var(--ink2);cursor:pointer;font-weight:400;min-height:38px}
+.chip:active{transform:scale(.96)}
+.meas{display:grid;grid-template-columns:1fr auto;gap:12px;align-items:center;margin-top:20px}
+.meas input{width:100%;background:var(--field);border:1px solid var(--line2);border-radius:18px;color:var(--ink);font-family:var(--sans);font-size:30px;font-weight:300;padding:14px 16px;outline:none;text-align:center}
+.meas input:focus{border-color:rgba(233,210,122,.6)}
+.meas .u{color:var(--ink3);font-size:16px}
+.note-in{width:100%;margin-top:10px;background:var(--field);border:1px solid var(--line2);border-radius:16px;color:var(--ink);font-family:var(--sans);font-size:15px;padding:13px 14px;outline:none}
+.hist{margin-top:20px}
+.he{display:flex;align-items:center;justify-content:space-between;padding:10px 4px;border-bottom:1px solid var(--line);font-size:14px}
+.he span{color:var(--ink3);font-size:13px}
+.he b{font-weight:400}
+.he .x{background:none;border:none;color:var(--ink4);font-size:18px;cursor:pointer;padding:2px 8px;min-width:36px;min-height:36px}
+.stats3{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:10px;margin-top:18px}
+.st{background:var(--surf);border:1px solid var(--edge);box-shadow:var(--hi);border-radius:20px;padding:14px}
+.st b{display:block;font-size:21px;font-weight:400;color:var(--ink);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.st:nth-child(2) b{color:var(--gold)}
+.st small{font-size:11px;letter-spacing:.12em;text-transform:uppercase;color:var(--ink3)}
+.heat{display:grid;grid-template-columns:repeat(7,1fr);gap:6px;margin-top:10px;justify-items:center}
+.heat i{width:100%;max-width:22px;aspect-ratio:1;border-radius:50%;border:1px solid var(--track)}
+.heat i.l1{border:1.5px solid rgba(233,210,122,.45)}.heat i.l2{background:rgba(233,210,122,.5);border-color:transparent}.heat i.l3{background:var(--gold);border-color:transparent;box-shadow:0 0 6px rgba(233,210,122,.5)}
+.heat i.f{border:1px dashed var(--track2)}
+
+.hexcal{display:grid;grid-template-columns:repeat(7,1fr) 30px;gap:8px 0;align-items:center;text-align:center}
+.hexcal .hd{font-size:11px;color:var(--ink3)}
+.hexcal .wk{font-size:12px;color:var(--ink3);text-align:right}
+.hexcal .wk.met{color:var(--gold)}
+.hexcal svg{width:24px;height:24px;margin:0 auto;display:block;overflow:visible}
+.empty{color:var(--ink3);font-size:14px;padding:18px 6px;line-height:1.5}
+
+.toast{position:fixed;left:50%;bottom:calc(100px + var(--sb));transform:translate(-50%,20px);opacity:0;z-index:150;background:var(--navbg);border:1px solid var(--line2);box-shadow:var(--hi),0 10px 30px rgba(0,0,0,.6);color:var(--ink);padding:12px 18px;border-radius:999px;font-size:13px;font-weight:400;transition:all .3s;pointer-events:none;white-space:nowrap;backdrop-filter:blur(12px)}
+.toast.on{opacity:1;transform:translate(-50%,0)}
+.toast b{color:var(--gold);font-weight:500}
+.running{display:flex;align-items:center;gap:12px;padding:14px 16px;margin-bottom:12px;font-weight:400}
+.running .dot{width:8px;height:8px;border-radius:50%;background:var(--gold);box-shadow:0 0 10px var(--gold);animation:pulse 1.4s ease infinite}
+@keyframes pulse{50%{opacity:.3}}
+.running .t{font-size:20px;font-weight:300;margin-left:auto}
+.sync{font-size:11px;color:var(--ink3);text-align:center;margin-top:22px}
+.sync i{display:inline-block;width:6px;height:6px;border-radius:50%;background:var(--ink4);margin-right:6px;vertical-align:1px}
+.sync.ok i{background:var(--gold);box-shadow:0 0 6px var(--gold)}
+</style>
+</head>
+<body>
+<div class="statusbar"></div><div class="glow"></div>
+
+<div class="app">
+  <!-- TODAY -->
+  <section class="view on" id="v-today">
+    <div class="bar">
+      <div><div class="eyebrow">Winter arc</div><div class="title" id="tTitle">Today</div></div>
+      <button class="cbtn" id="todayAdd" aria-label="Log activity">+</button>
+    </div>
+    <div class="dsw"><button id="dPrev" aria-label="Previous day">‹</button><span id="dTxt"></span><button id="dNext" aria-label="Next day">›</button><span class="back" id="dBack" hidden>today</span></div>
+    <div class="mantra" id="mantra"></div>
+    <div id="runBox"></div>
+    <div id="todayArcs"></div>
+    <div class="label-sect">today <em id="tCount"></em></div>
+    <div id="todayActs"></div>
+  </section>
+
+  <!-- ACTIVITIES -->
+  <section class="view" id="v-acts">
+    <div class="bar"><div><div class="eyebrow">Winter arc</div><div class="title">Activities</div></div><button class="cbtn" id="actAdd" aria-label="New activity">+</button></div>
+    <button id="actMore" hidden></button>
+    <div class="subt">what you do. measured.</div>
+    <div id="actList"></div>
+    <div class="widgets">
+      <div class="wtile ring" id="wAdd">
+        <svg class="txt" viewBox="0 0 200 200"><defs><path id="circ" d="M100,100 m-80,0 a80,80 0 1,1 160,0 a80,80 0 1,1 -160,0"/></defs>
+          <text font-family="Inter, sans-serif" font-size="13" font-weight="400" fill="#6b6a67"><textPath href="#circ" textLength="500" lengthAdjust="spacing">NEW ACTIVITY · NEW ACTIVITY · NEW ACTIVITY ·</textPath></text></svg>
+        <div class="plus">+</div>
+      </div>
+      <div class="wtile" id="wGrid"><div class="mini" id="miniGrid"></div><div class="cap">last 4 weeks</div></div>
+    </div>
+  </section>
+
+  <!-- ARCS -->
+  <section class="view" id="v-arcs">
+    <div class="bar"><div><div class="eyebrow">Winter arc</div><div class="title">Arcs</div></div><button class="cbtn" id="arcAdd" aria-label="New arc">+</button></div>
+    <button id="arcMore" hidden></button>
+    <div class="subt">a season of showing up.</div>
+    <div id="arcList"></div>
+  </section>
+
+  <!-- SETTINGS -->
+  <section class="view" id="v-set">
+    <div class="bar"><div><div class="eyebrow">Winter arc</div><div class="title">Settings</div></div></div>
+    <div class="subt">quiet controls.</div>
+    <div class="fl">Appearance</div>
+    <div class="grp"><div class="r"><span>Theme</span><div class="seg" id="thSeg"><button data-t="dark">Dark</button><button data-t="light">Daylight</button><button data-t="auto">Auto</button></div></div></div>
+    <div class="fl">Week starts</div>
+    <div class="grp"><div class="r"><span>First day of the week</span><div class="seg" id="wsSeg"><button data-v="1">Mon</button><button data-v="0">Sun</button></div></div></div>
+    <div class="fl">Account</div>
+    <div class="grp"><div class="r"><span id="acctTxt">Not signed in</span><button class="chip" id="acctBtn">sign in</button></div></div>
+    <div class="fl">Data</div>
+    <div class="grp">
+      <div class="r"><span>Import a backup</span><button class="chip" id="impBtn">import</button></div>
+      <div class="r"><span>Copy a backup</span><button class="chip" id="copyBk">copy JSON</button></div>
+      <div class="r"><span>Start again</span><button class="chip" id="resetBtn" style="color:#d9a3a3">reset</button></div>
+    </div>
+    <div class="sync" id="sync"><i></i>loading…</div>
+  </section>
+</div>
+
+<nav><div class="in">
+  <button data-v="today" class="on" aria-label="Today"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><circle cx="12" cy="12" r="8"/><circle cx="12" cy="12" r="3"/></svg><span>Today</span></button>
+  <button data-v="acts" aria-label="Activities"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.4"><rect x="4" y="4" width="7" height="7" rx="2"/><rect x="13" y="4" width="7" height="7" rx="2"/><rect x="4" y="13" width="7" height="7" rx="2"/><rect x="13" y="13" width="7" height="7" rx="2"/></svg><span>Activities</span></button>
+  <button data-v="arcs" aria-label="Arcs"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round"><path d="M4 18a8 8 0 0 1 16 0"/><path d="M8 18a4 4 0 0 1 8 0"/></svg><span>Arcs</span></button>
+  <button data-v="set" aria-label="Settings"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round"><path d="M4 7h10M18 7h2M4 17h4M12 17h8"/><circle cx="16" cy="7" r="2"/><circle cx="10" cy="17" r="2"/></svg><span>Settings</span></button>
+</div></nav>
+
+<div class="scrim" id="scrim"></div>
+<div class="sheet" id="sheet"><div class="grab"></div><div class="sc" id="sheetBody"></div></div>
+<div class="toast" id="toast"></div>
+
+<button class="update" id="updBtn" hidden>New version ready · tap to update</button>
+<script src="vendor/supabase.js"></script>
+<script>
+(() => {
+'use strict';
+// ---------------- utils ----------------
+const pad = n => String(n).padStart(2,'0');
+const key = d => `${d.getFullYear()}-${pad(d.getMonth()+1)}-${pad(d.getDate())}`;
+const parse = k => { const [y,m,d] = k.split('-').map(Number); return new Date(y,m-1,d); };
+const addDays = (k,n) => { const d = parse(k); d.setDate(d.getDate()+n); return key(d); };
+const todayKey = () => key(new Date());
+const diffDays = (a,b) => Math.round((parse(b)-parse(a))/86400000);
+const uid = () => Math.random().toString(36).slice(2,10);
+const $ = id => document.getElementById(id);
+const esc = s => String(s ?? '').replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+const fmtLong = k => parse(k).toLocaleDateString('en-GB',{weekday:'long',day:'numeric',month:'long'}).toLowerCase();
+const fmtShort = k => parse(k).toLocaleDateString('en-GB',{day:'numeric',month:'short'});
+const fmtMin = m => { m = Math.round(m); if (m < 60) return m + 'm'; const h = Math.floor(m/60), r = m % 60; return r ? `${h}h ${r}m` : `${h}h`; };
+const round1 = v => Math.round(v*10)/10;
+const buzz = ms => { try { navigator.vibrate && navigator.vibrate(ms); } catch(e) {} };
+
+const COLORS = { acid:'#e9d27a', frost:'#a9c7d8', bone:'#d6d5d1', ember:'#e0a46e', sage:'#a7bfa0', rust:'#d6a2a2', steel:'#9aa6b3', violet:'#b7aed6' };
+const ICONS = {
+  dumbbell:'M6 12h12M6 8v8M3.5 9.5v5M18 8v8M20.5 9.5v5',
+  kettlebell:'M9 8.5V7a3 3 0 0 1 6 0v1.5M12 20a6 6 0 1 0 0-12 6 6 0 0 0 0 12z',
+  run:'M14 4.5a1.5 1.5 0 1 0 0.01 0M9 20.5l3-6 3 2.5v4.5M6.5 11.5l3.5-3h4l2 3.5h3',
+  glove:'M7 10a4 4 0 0 1 4-4h3a4 4 0 0 1 4 4v3a4 4 0 0 1-4 4H9v3H7zM11 10h3',
+  meditate:'M12 4.5a1.5 1.5 0 1 0 .01 0M5.5 18.5h13M8.5 15.5l3.5-6 3.5 6M5 12.5l3.5 2.5M19 12.5l-3.5 2.5',
+  steps:'M9.5 5.5c1.5 0 2.5 1.8 2.5 4s-1 4-2.5 4-2.5-1.8-2.5-4 1-4 2.5-4zM8.3 16h2.4M15 9.5c1.5 0 2.5 1.8 2.5 4s-1 4-2.5 4-2.5-1.8-2.5-4 1-4 2.5-4zM13.8 20h2.4',
+  bike:'M6 17.5a3 3 0 1 0 0.01 0M18 17.5a3 3 0 1 0 .01 0M6 17.5L9.5 10h5.5l3 7.5M9.5 10l3 7.5h1M8 7h3',
+  swim:'M3 17c2 0 2-1.5 4.5-1.5S9.5 17 12 17s2-1.5 4.5-1.5S18.5 17 21 17M14.5 6.5a1.5 1.5 0 1 0 .01 0M7.5 13l4.5-4.5 3 3',
+  stretch:'M12 4.5a1.5 1.5 0 1 0 .01 0M12 8v6M12 14l-4 6M12 14l5 5M6 10h12',
+  pullup:'M3 5h18M8 5v3.5a4 4 0 0 0 8 0V5M12 13.5a1.5 1.5 0 1 0 .01 0M12 15v5',
+  arm:'M5 16.5c2-6 4-9 6-10l2 2-2 2c2 0 5 1 7 4-2 3-8 4-13 2z',
+  drop:'M12 3.5c-3.5 4.5-6 7.8-6 11a6 6 0 0 0 12 0c0-3.2-2.5-6.5-6-11z',
+  moon:'M15.5 4a8 8 0 1 0 4.5 13.5A9.5 9.5 0 0 1 15.5 4z',
+  ban:'M12 3.5a8.5 8.5 0 1 0 .01 0M6 6l12 12',
+  book:'M4 5.5c2.5-1 5.5-1 8 .5 2.5-1.5 5.5-1.5 8-.5V19c-2.5-1-5.5-1-8 .5-2.5-1.5-5.5-1.5-8-.5zM12 6v13.5',
+  focus:'M12 3.5a8.5 8.5 0 1 0 .01 0M12 8a4 4 0 1 0 .01 0M12 11.5a.5.5 0 1 0 .01 0',
+  pen:'M4 20l1.2-4.2L15.5 5.5l3 3L8.2 18.8zM13.5 7.5l3 3',
+  leaf:'M5 19c0-8 5-13 14-14 0 9-5 14-13 14M5 19l8-8',
+  coffee:'M5 9h11v5a5 5 0 0 1-5 5h-1a5 5 0 0 1-5-5zM16 10.5h1.5a2.5 2.5 0 0 1 0 5H16M8 4v2.5M11 4v2.5',
+  snow:'M12 3v18M4.2 7.5l15.6 9M4.2 16.5l15.6-9',
+  tree:'M12 3l5 7h-3l4 6H6l4-6H7zM12 16v5',
+  headphones:'M4 15v-3a8 8 0 0 1 16 0v3M4 15h3v5H4zM17 15h3v5h-3z',
+  speech:'M4 6h16v10H9l-5 4z',
+  pill:'M8 16l8-8a3.5 3.5 0 0 0-5-5l-8 8a3.5 3.5 0 0 0 5 5zM7 7l5 5',
+  phoneoff:'M8 3.5h8v17H8zM5 5l14 14',
+  clock:'M12 4.5a8 8 0 1 0 .01 0M12 8.5v4l3 2',
+  flame:'M12 3.5c1 3.5 5 5 5 10a5 5 0 0 1-10 0c0-2.5 1.5-4 2.5-5 .3 2 1.3 3 2.5 3.5V3.5z',
+  bolt:'M13 3L5 13.5h6L10 21l8-10.5h-6z',
+  flag:'M6 21V4M6 4h11l-2 4 2 4H6',
+  wall:'M3.5 6h17v12h-17zM3.5 12h17M9 6v6M15 12v6',
+  lungs:'M4 15c0-5 3-8 5-8v9c0 2-1 3-3 3s-2-2-2-4zM20 15c0-5-3-8-5-8v9c0 2 1 3 3 3s2-2 2-4zM12 3v8M12 11l-3 2M12 11l3 2',
+  wave:'M3 12c3-6 6-6 9 0s6 6 9 0',
+  dot:'M12 9a3 3 0 1 0 .01 0',
+};
+const EMOJI = {'🏋️':'dumbbell','🏋':'dumbbell','🏃':'run','🥊':'glove','🧘':'meditate','🚶':'steps','🚴':'bike','🏊':'swim','🤸':'stretch','💧':'drop','🛏️':'moon','🛏':'moon','🚫':'ban','📖':'book','🧠':'focus','✍️':'pen','✍':'pen','🥗':'leaf','☕':'coffee','🧊':'snow','🌲':'tree','🎧':'headphones','🗣️':'speech','🗣':'speech','💊':'pill','📵':'phoneoff','⏰':'clock','🔥':'flame','⚡':'bolt','🎯':'flag','🪓':'kettlebell','🧱':'wall','🫁':'lungs','🦵':'stretch','💪':'arm','❄️':'snow','❄':'snow','•':'dot'};
+const iconKeyLoose = s => { if (ICONS[s]) return s; if (EMOJI[s]) return EMOJI[s]; const t = String(s||'').replace(/\uFE0F/g,''); return EMOJI[t] || 'dot'; };
+const SYMS = ['dumbbell','kettlebell','run','pullup','arm','glove','bike','swim','steps','stretch','meditate','wave','lungs','drop','moon','ban','phoneoff','coffee','leaf','pill','book','pen','focus','speech','headphones','clock','flame','bolt','flag','snow','tree','wall','dot'];
+const iconKey = s => iconKeyLoose(s);
+const iconSVG = (s, px) => `<svg width="${px||20}" height="${px||20}" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="${ICONS[iconKey(s)]}"/></svg>`;
+// icon inside a progress ring. frac: null = plain track, 0..1 = progress
+function symHTML(sym, c, frac, size) {
+  size = size || 44; const r = size/2 - 2.5, C = 2*Math.PI*r, sw = size > 48 ? 2.5 : 2.2;
+  let ring = `<circle cx="${size/2}" cy="${size/2}" r="${r}" fill="none" class="trk" stroke="#3b3b3f" stroke-width="${sw}"/>`;
+  if (frac != null && frac > 0) {
+    const full = frac >= 1;
+    ring += `<circle cx="${size/2}" cy="${size/2}" r="${r}" fill="none" stroke="${c}" stroke-width="${sw}" stroke-linecap="round" stroke-dasharray="${full ? C : C*frac} ${C}" transform="rotate(-90 ${size/2} ${size/2})" ${full ? `style="filter:drop-shadow(0 0 4px ${c}88)"` : ''}/>`;
+  }
+  return `<div class="ring" style="width:${size}px;height:${size}px"><svg width="${size}" height="${size}" viewBox="0 0 ${size} ${size}" aria-hidden="true">${ring}</svg><div class="ic">${iconSVG(sym, Math.round(size*0.45))}</div></div>`;
+}
+const MANTRAS = ['lock in.','let the work talk.','do it alone.','enjoy the pain.','action cures anxiety.','nobody is coming.','break the pattern today.','show up. again.','quiet work. loud results.','the cold doesn’t care.','be the same person every day.','earn the spring.','discipline over mood.','no one is watching. good.'];
+const TYPE_LABEL = { timed:'Timed', tally:'Simple tally', measured:'Measured tally' };
+
+// ---------------- state ----------------
+const WINTER_END = (() => { const t = new Date(); const y = t.getMonth() >= 6 ? t.getFullYear()+1 : t.getFullYear(); return `${y}-03-20`; })();
+function seed(start) {
+  const A = (name,sym,color,type,unit) => ({ id: uid(), name, sym, color, type, unit: unit || '' });
+  const gym = A('Gym','dumbbell','acid','tally'), bed = A('In bed by 11','moon','frost','tally'), water = A('2L water','drop','steel','tally'),
+        dry = A('No alcohol','ban','rust','tally'), steps = A('Steps','steps','sage','measured','steps');
+  return {
+    v: 2, updated: 0, weekStart: 1,
+    activities: [gym, bed, water, dry, steps],
+    entries: [], notes: {}, timer: null,
+    arcs: [{ id: uid(), name: 'Winter Arc', sym: 'snow', color: 'acid', kind: 'habit', start, end: WINTER_END,
+      items: [ { a: gym.id, goal: 3, per: 'week' }, { a: bed.id, goal: 1, per: 'day' }, { a: water.id, goal: 1, per: 'day' }, { a: dry.id, goal: 1, per: 'day' }, { a: steps.id, goal: 8000, per: 'day' } ] }],
+  };
+}
+// migrate v1 (gym days, habit ticks, notes)
+function fromV1(o) {
+  const s = seed(o.start || todayKey());
+  const gym = s.activities[0];
+  s.activities = [gym]; s.arcs[0].items = [{ a: gym.id, goal: o.gymTarget || 3, per: 'week' }];
+  (o.habits || []).forEach(h => { const a = { id: h.id || uid(), name: h.name, sym: 'dot', color: 'bone', type: 'tally', unit: '' };
+    const g = { 'In bed by 11':['moon','frost'], '2L water':['drop','steel'], 'No alcohol':['ban','rust'], '8k steps':['steps','sage'] }[h.name];
+    if (g) { a.sym = g[0]; a.color = g[1]; } else a.sym = 'flag';
+    s.activities.push(a); s.arcs[0].items.push({ a: a.id, goal: 1, per: 'day' }); });
+  Object.entries(o.days || {}).forEach(([d, r]) => {
+    if (r.gym) s.entries.push({ id: uid(), a: gym.id, d, v: 1, t: Date.now() });
+    Object.keys(r.h || {}).forEach(hid => { if (r.h[hid] && s.activities.find(x => x.id === hid)) s.entries.push({ id: uid(), a: hid, d, v: 1, t: Date.now() }); });
+    if (r.note) s.notes[d] = r.note;
+  });
+  return s;
+}
+function normalise(o) {
+  if (!o || typeof o !== 'object') return null;
+  if (o.v !== 2) return o.days || o.habits ? fromV1(o) : null;
+  return { v:2, updated: o.updated||0, weekStart: o.weekStart === 0 ? 0 : 1, activities: o.activities||[], entries: o.entries||[], notes: o.notes||{}, timer: o.timer||null, arcs: o.arcs||[] };
+}
+
+let S = null, viewDate = todayKey(), cur = 'today';
+const LS2 = 'winterarc.v2', LS1 = 'winterarc.v1';
+const lsGet = k => { try { return JSON.parse(localStorage.getItem(k) || 'null'); } catch(e) { return null; } };
+const lsSet = (k,v) => { try { localStorage.setItem(k, JSON.stringify(v)); } catch(e) {} };
+
+// ---------------- persistence (device first, Supabase sync) ----------------
+const SB_URL = 'https://sigqturyhlpvvyoagcbx.supabase.co';
+const SB_KEY = 'sb_publishable_mocOcN_zJehxIfGvzKSqEA_fGqH52oE';
+const TABLE = 'winter_arc_state';
+let sb = null, me = null, dirty = false, saving = false, saveT = null, retryT = null;
+try { sb = window.supabase.createClient(SB_URL, SB_KEY, { auth: { persistSession: true, autoRefreshToken: true, detectSessionInUrl: false, storageKey: 'winterarc.auth' } }); } catch(e) { sb = null; }
+const setSync = (ok, t) => { const el = $('sync'); if (!el) return; el.className = 'sync' + (ok ? ' ok' : ''); el.innerHTML = '<i></i>' + esc(t); };
+const syncedMsg = () => setSync(true, 'synced · ' + (me && me.email ? me.email : 'your account'));
+function save() { S.updated = Date.now(); lsSet(LS2, S); if (!me) return; dirty = true; clearTimeout(saveT); saveT = setTimeout(flush, 700); }
+async function flush() {
+  if (!me || !sb || saving || !dirty) return; saving = true; dirty = false;
+  try {
+    const { error } = await sb.from(TABLE).upsert({ user_id: me.id, data: JSON.parse(JSON.stringify(S)), updated_at: new Date().toISOString() });
+    if (error) throw error;
+    syncedMsg();
+  } catch(e) {
+    dirty = true;
+    setSync(false, navigator.onLine === false ? 'offline · saved on this phone, will sync later' : 'sync failed · retrying');
+    clearTimeout(retryT); retryT = setTimeout(flush, 8000 + Math.random()*4000);
+  } finally { saving = false; if (dirty && me && !retryT) { clearTimeout(saveT); saveT = setTimeout(flush, 400); } }
+}
+async function pull() {
+  if (!me || !sb || dirty || saving) return;
+  try {
+    const { data, error } = await sb.from(TABLE).select('data').eq('user_id', me.id).maybeSingle();
+    if (error) throw error;
+    if (data && data.data) { const r = normalise(data.data); if (r && r.updated > S.updated) { S = r; lsSet(LS2, S); if (!sheetOpen) renderAll(); } }
+    syncedMsg();
+  } catch(e) {}
+}
+async function onSignedIn(user) {
+  me = user; renderAcct();
+  try {
+    const { data, error } = await sb.from(TABLE).select('data').eq('user_id', me.id).maybeSingle();
+    if (error) throw error;
+    const remote = data && data.data ? normalise(data.data) : null;
+    if (remote && remote.updated >= S.updated) { S = remote; lsSet(LS2, S); renderAll(); syncedMsg(); }
+    else { dirty = true; flush(); }
+  } catch(e) { setSync(false, 'signed in · couldn\'t reach the server yet'); dirty = true; clearTimeout(retryT); retryT = setTimeout(flush, 6000); }
+}
+function renderAcct() {
+  const t = $('acctTxt'), b = $('acctBtn'); if (!t) return;
+  if (me) { t.textContent = me.email || 'Signed in'; b.textContent = 'sign out'; }
+  else { t.textContent = 'Not signed in'; b.textContent = 'sign in'; setSync(false, 'saved on this phone only · sign in to sync'); }
+}
+async function connect() {
+  if (!sb) { setSync(false, 'saved on this phone only'); return; }
+  try {
+    const { data } = await sb.auth.getSession();
+    if (data && data.session) await onSignedIn(data.session.user);
+    else { renderAcct(); let skipped = false; try { skipped = localStorage.getItem('winterarc.skipAuth') === '1'; } catch(e) {} if (!skipped) setTimeout(() => openAuth(), 500); }
+  } catch(e) { renderAcct(); }
+  sb.auth.onAuthStateChange((ev, session) => { if (ev === 'SIGNED_OUT') { me = null; renderAcct(); } });
+  document.addEventListener('visibilitychange', () => { if (document.visibilityState === 'visible') { if (dirty) flush(); else pull(); } });
+  window.addEventListener('online', () => { retryT = null; if (dirty) flush(); else pull(); });
+}
+// ---- sign-in sheet (email code) ----
+function openAuth(step, email) {
+  if (!sb) return;
+  if (step !== 'code') {
+    openSheet(`<div class="sh-bar"><span></span>${xBtn('auX')}</div><div class="sh-title">Sync your arc</div>
+      <p class="authp">Sign in with your email to back up your logs and sync between phone and laptop. We'll email you a code: no password.</p>
+      <input class="authin" id="auEmail" type="email" inputmode="email" autocomplete="email" placeholder="you@example.com" value="${esc(email || '')}">
+      <div class="autherr" id="auErr"></div>
+      <button class="wide acc" id="auSend">send code</button>
+      <button class="linkbtn" id="auSkip">use on this phone only for now</button>`, true);
+    $('auX').onclick = closeSheet;
+    $('auSkip').onclick = () => { try { localStorage.setItem('winterarc.skipAuth', '1'); } catch(e) {} closeSheet(); };
+    const send = async () => {
+      const em = $('auEmail').value.trim();
+      if (!/^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(em)) { $('auErr').textContent = 'enter a valid email address.'; return; }
+      $('auSend').textContent = 'sending…'; $('auSend').disabled = true;
+      const { error } = await sb.auth.signInWithOtp({ email: em, options: { shouldCreateUser: true } });
+      if (error) { $('auErr').textContent = /fetch|network/i.test(error.message || '') ? 'couldn\'t reach the server. check your connection and try again.' : (error.message || 'could not send the code. try again.'); $('auSend').textContent = 'send code'; $('auSend').disabled = false; return; }
+      openAuth('code', em);
+    };
+    $('auSend').onclick = send; $('auEmail').onkeydown = e => { if (e.key === 'Enter') send(); };
+    setTimeout(() => $('auEmail') && $('auEmail').focus(), 350);
+  } else {
+    openSheet(`<div class="sh-bar"><button class="cbtn" id="auBack" aria-label="Back">‹</button>${xBtn('auX')}</div><div class="sh-title">Enter your code</div>
+      <p class="authp">We sent a code to <b>${esc(email)}</b>. It can take a minute; check spam if it doesn't arrive.</p>
+      <input class="authin code" id="auCode" inputmode="numeric" autocomplete="one-time-code" maxlength="10" placeholder="••••••">
+      <div class="autherr" id="auErr"></div>
+      <button class="wide acc" id="auVerify">sign in</button>`, true);
+    $('auX').onclick = closeSheet; $('auBack').onclick = () => openAuth('email', email);
+    const verify = async () => {
+      const code = $('auCode').value.replace(/\D/g, '');
+      if (code.length < 6) { $('auErr').textContent = 'enter the code from the email.'; return; }
+      $('auVerify').textContent = 'checking…'; $('auVerify').disabled = true;
+      const { data, error } = await sb.auth.verifyOtp({ email, token: code, type: 'email' });
+      if (error || !data || !data.user) { $('auErr').textContent = (error && error.message) || 'that code didn\'t work. try again.'; $('auVerify').textContent = 'sign in'; $('auVerify').disabled = false; return; }
+      closeSheet(); await onSignedIn(data.user); toast('signed in. <b>syncing.</b>');
+    };
+    $('auVerify').onclick = verify; $('auCode').onkeydown = e => { if (e.key === 'Enter') verify(); };
+    setTimeout(() => $('auCode') && $('auCode').focus(), 350);
+  }
+}
+// ---------------- derived ----------------
+const act = id => S.activities.find(a => a.id === id);
+const LIGHT = { acid:'#a07c14', frost:'#2f6f93', bone:'#55544f', ember:'#b4581c', sage:'#4e7a45', rust:'#a8444a', steel:'#4f5f72', violet:'#6a5aa6' };
+const isLight = () => document.documentElement.dataset.theme === 'light';
+const col = c => (isLight() ? LIGHT[c] : COLORS[c]) || c || COLORS.bone;
+const wkStart = k => { const d = parse(k); const off = (d.getDay() - S.weekStart + 7) % 7; d.setDate(d.getDate() - off); return key(d); };
+const DOWS = () => S.weekStart === 1 ? ['M','T','W','T','F','S','S'] : ['S','M','T','W','T','F','S'];
+const entriesOn = (a, d) => S.entries.filter(e => e.a === a && e.d === d);
+function amount(a, from, to) { // sum (tally/timed) or count (measured) over [from,to]
+  const ac = act(a); let s = 0, c = 0;
+  for (const e of S.entries) if (e.a === a && e.d >= from && e.d <= to) { s += +e.v || 0; c++; }
+  return { sum: s, count: c, val: ac && ac.type === 'measured' ? s : s };
+}
+const dayAmt = (a, d) => amount(a, d, d).sum;
+const fmtVal = (ac, v) => ac.type === 'timed' ? fmtMin(v) : ac.type === 'measured' ? `${round1(v).toLocaleString('en-GB')}${ac.unit ? ' ' + ac.unit : ''}` : String(round1(v));
+const fmtGoal = (ac, g) => ac.type === 'timed' ? fmtMin(g) : ac.type === 'measured' ? `${(+g).toLocaleString('en-GB')}${ac.unit ? ' ' + ac.unit : ''}` : String(g);
+function itemProgress(it, d) {
+  const ac = act(it.a); if (!ac) return null;
+  const goal = +it.goal || 1;
+  const from = it.per === 'week' ? wkStart(d) : d, to = it.per === 'week' ? addDays(from, 6) : d;
+  const v = amount(it.a, from, to).sum;
+  return { ac, goal, v, met: v >= goal, per: it.per };
+}
+function arcDayState(arc, d) {
+  if (d < arc.start || (arc.end && d > arc.end)) return 'out';
+  if (d > todayKey()) return 'future';
+  const items = arc.items.filter(it => act(it.a));
+  if (!items.length) return 'empty';
+  if (arc.kind === 'unscripted') return items.some(it => dayAmt(it.a, d) > 0) ? 'done' : 'empty';
+  const daily = items.filter(it => it.per !== 'week');
+  if (daily.length) {
+    const met = daily.filter(it => dayAmt(it.a, d) >= (+it.goal || 1)).length;
+    return met === daily.length ? 'done' : met > 0 || items.some(it => dayAmt(it.a, d) > 0) ? 'part' : 'empty';
+  }
+  return items.some(it => dayAmt(it.a, d) > 0) ? 'done' : 'empty';
+}
+function arcWeekMet(arc, wk) {
+  const weekly = arc.items.filter(it => it.per === 'week' && act(it.a));
+  if (!weekly.length) return null;
+  return weekly.every(it => amount(it.a, wk, addDays(wk, 6)).sum >= (+it.goal || 1));
+}
+function arcStats(arc) {
+  const tk = todayKey(), last = arc.end && arc.end < tk ? arc.end : tk;
+  let active = 0, streak = 0, best = 0, run = 0;
+  for (let d = arc.start; d <= last; d = addDays(d, 1)) {
+    const s = arcDayState(arc, d);
+    if (s === 'done') { active++; run++; best = Math.max(best, run); } else if (s === 'part') { active++; if (d !== tk) run = 0; } else if (d !== tk) run = 0;
+  }
+  // current streak: back from today (today counts if done; if not done yet, start from yesterday)
+  let d = arcDayState(arc, tk) === 'done' ? tk : addDays(tk, -1);
+  while (d >= arc.start && arcDayState(arc, d) === 'done') { streak++; d = addDays(d, -1); }
+  let wstreak = 0;
+  if (arcWeekMet(arc, wkStart(tk)) !== null) {
+    let w = wkStart(tk); if (!arcWeekMet(arc, w)) w = addDays(w, -7);
+    while (w >= wkStart(arc.start) && arcWeekMet(arc, w)) { wstreak++; w = addDays(w, -7); }
+  }
+  const total = arc.end ? diffDays(arc.start, arc.end) + 1 : null;
+  const dayN = diffDays(arc.start, tk) + 1;
+  return { active, streak, best, wstreak, total, dayN };
+}
+const activeArcs = () => { const tk = todayKey(); return S.arcs.filter(a => a.start <= tk && (!a.end || a.end >= tk)); };
+
+// ---------------- hexagons ----------------
+function hexSVG(state, c, mark, cls) {
+  const r = 10, C = 2*Math.PI*r;
+  let inner = '';
+  if (state === 'done') inner = `<circle cx="13" cy="13" r="${r}" fill="none" stroke="${c}" stroke-width="2.4" style="filter:drop-shadow(0 0 3px ${c}99)"/>`;
+  else if (state === 'part') inner = `<circle class="trk" cx="13" cy="13" r="${r}" fill="none" stroke="#3b3b3f" stroke-width="2.4"/><circle cx="13" cy="13" r="${r}" fill="none" stroke="${c}" stroke-width="2.4" stroke-linecap="round" stroke-dasharray="${C*0.5} ${C}" transform="rotate(-90 13 13)"/>`;
+  else if (state === 'future') inner = `<circle class="trk2" cx="13" cy="13" r="${r}" fill="none" stroke="#2b2b2f" stroke-width="2.2"/>`;
+  else if (state === 'out') inner = `<circle class="dotf" cx="13" cy="13" r="2" fill="#3b3b3f"/>`;
+  else inner = `<circle class="trk" cx="13" cy="13" r="${r}" fill="none" stroke="#3b3b3f" stroke-width="2.4"/>`;
+  if (mark === 'today' && state !== 'done') inner += `<circle cx="13" cy="13" r="${r+3.2}" fill="none" class="tdy" stroke="#f6f5f2" stroke-width="1.3" opacity=".8"/>`;
+  return `<svg class="${cls === undefined ? 'hex' : cls}" viewBox="0 0 26 26" aria-hidden="true">${inner}</svg>`;
+}
+const SUN = '•', START = '▷', FLAG = '⚑';
+function weekHexRow(arc) {
+  const tk = todayKey(), ws = wkStart(tk), c = col(arc.color), labels = DOWS();
+  let h = '<div class="hexrow">';
+  for (let i = 0; i < 7; i++) {
+    const d = addDays(ws, i), st = arcDayState(arc, d);
+    let lab = labels[i], cls = 'dl';
+    if (d === arc.start) lab = START; else if (arc.end && d === arc.end) lab = FLAG;
+    if (d === tk) { lab = d === arc.start ? START : SUN; cls += ' today'; }
+    h += `<div><div class="${cls}">${lab}</div>${hexSVG(st, c, d === tk ? 'today' : '')}<div class="dn">${parse(d).getDate()}</div></div>`;
+  }
+  return h + '</div>';
+}
+
+// ---------------- toast ----------------
+let toastT;
+const toast = html => { const el = $('toast'); el.innerHTML = html; el.classList.add('on'); clearTimeout(toastT); toastT = setTimeout(() => el.classList.remove('on'), 2200); };
+
+// ---------------- TODAY ----------------
+function arcCard(arc) {
+  const st = arcStats(arc), c = col(arc.color), tk = todayKey();
+  const r = 56, C = 2*Math.PI*r;
+  const frac = st.total ? Math.max(0, Math.min(1, st.dayN / st.total)) : Math.min(1, (st.active % 30) / 30);
+  const weeklyOnly = arc.items.length && !arc.items.some(i => i.per !== 'week');
+  const goals = arc.kind === 'habit' ? arc.items.map(it => itemProgress(it, tk)).filter(Boolean) : [];
+  const met = goals.filter(g => g.met).length;
+  const k1 = arc.kind === 'habit'
+    ? (weeklyOnly ? `<b>${st.wstreak} <span>wk</span></b><small>streak</small>` : `<b>${st.streak} <span>${st.streak === 1 ? 'day' : 'days'}</span></b><small>streak${st.wstreak ? ' · ' + st.wstreak + ' wk' : ''}</small>`)
+    : `<b>${st.active} <span>days</span></b><small>active</small>`;
+  const k2 = arc.kind === 'habit' && goals.length ? `<b>${met}<span> / ${goals.length}</span></b><small>goals today</small>` : `<b>${st.best} <span>days</span></b><small>best run</small>`;
+  return `<div class="stack hero" style="--c:${c}" data-arc="${esc(arc.id)}">
+    <div class="arc-top"><div class="big"><svg width="124" height="124" viewBox="0 0 124 124" aria-hidden="true"><circle class="trk" cx="62" cy="62" r="${r}" fill="none" stroke="#3b3b3f" stroke-width="5"/>${frac > 0 ? `<circle cx="62" cy="62" r="${r}" fill="none" stroke="${c}" stroke-width="5" stroke-linecap="round" stroke-dasharray="${Math.max(4, C*frac)} ${C}" style="filter:drop-shadow(0 0 6px ${c}88)"/>` : ''}</svg>
+      <div class="c"><div class="n">${Math.max(0, st.dayN)}</div><div class="s">${st.dayN < 1 ? 'starts ' + fmtShort(arc.start) : st.total ? 'of ' + st.total + ' days' : 'days'}</div></div></div>
+      <div class="side"><div class="an">${esc(arc.name)}</div><div class="kv">${k1}</div><div class="kv">${k2}</div></div></div>
+    ${weekHexRow(arc)}</div>`;
+}
+function renderToday() {
+  const k = viewDate, tk = todayKey();
+  $('tTitle').textContent = k === tk ? 'Today' : parse(k).toLocaleDateString('en-GB',{weekday:'long'});
+  $('dTxt').textContent = fmtLong(k);
+  $('dNext').disabled = k >= tk; $('dBack').hidden = k === tk;
+  $('mantra').textContent = MANTRAS[Math.abs(diffDays('2026-01-01', k)) % MANTRAS.length];
+  // running timer
+  if (S.timer && act(S.timer.a)) { const ac = act(S.timer.a); $('runBox').innerHTML = `<div class="stack running" style="--c:${col(ac.color)}" data-act="${esc(ac.id)}"><span class="dot"></span><span>${esc(ac.name)}</span><span class="t" id="runT">0:00</span></div>`; tickTimer(); }
+  else $('runBox').innerHTML = '';
+  const arcs = activeArcs();
+  $('todayArcs').innerHTML = arcs.map(a => arcCard(a)).join('');
+  // activity rows: arc goals first, then the rest
+  const goalOf = {}; arcs.forEach(a => a.kind === 'habit' && a.items.forEach(it => { if (!goalOf[it.a]) goalOf[it.a] = it; }));
+  const list = S.activities.slice().sort((x, y) => (goalOf[y.id] ? 1 : 0) - (goalOf[x.id] ? 1 : 0));
+  let met = 0, withGoal = 0;
+  $('todayActs').innerHTML = list.length ? list.map(ac => {
+    const c = col(ac.color), it = goalOf[ac.id];
+    const p = it ? itemProgress(it, k) : null;
+    const today = dayAmt(ac.id, k);
+    if (p) { withGoal++; if (p.met) met++; }
+    let pg, pct = 0;
+    if (p) { pg = `${ac.type === 'measured' ? round1(p.v).toLocaleString('en-GB') : fmtVal(ac, p.v)} / ${fmtGoal(ac, p.goal)} ${p.per === 'week' ? 'this week' : 'today'}`; pct = Math.min(100, p.v / p.goal * 100); }
+    else pg = today ? `${fmtVal(ac, today)} today` : TYPE_LABEL[ac.type].toLowerCase();
+    let q;
+    const running = S.timer && S.timer.a === ac.id;
+    if (ac.type === 'tally') q = `<button class="qbtn ${p && p.per === 'day' && p.met ? 'done' : ''}" data-q="${esc(ac.id)}">${p && p.per === 'day' && p.goal === 1 && p.met ? '<svg width="18" height="18" viewBox="0 0 18 18" aria-hidden="true"><path d="M4 9.5l3.2 3L14 5.5" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg>' : '+'}</button>`;
+    else if (ac.type === 'timed') q = `<button class="qbtn ${running ? 'run' : ''}" data-q="${esc(ac.id)}">${running ? '■' : '▶'}</button>`;
+    else q = `<button class="qbtn" data-q="${esc(ac.id)}">+</button>`;
+    return `<div class="stack trow ${p && p.met ? 'met' : ''}" style="--c:${c}" data-act="${esc(ac.id)}">${symHTML(ac.sym, c, p ? Math.min(1, p.v / p.goal) : (today ? 1 : null), 44)}
+      <div class="tx"><div class="nm">${esc(ac.name)}</div><div class="pg">${esc(pg)}</div></div>${q}</div>`;
+  }).join('') : `<div class="empty">no activities yet. tap + on Activities to add one.</div>`;
+  $('tCount').textContent = withGoal ? `${met}/${withGoal} goals` : '';
+}
+function addEntry(a, v, d, note) { const e = { id: uid(), a, d: d || viewDate, v: +v, t: Date.now() }; if (note) e.n = note; S.entries.push(e); save(); return e; }
+function quick(aid) {
+  const ac = act(aid); if (!ac) return;
+  if (ac.type === 'tally') {
+    const goalIt = activeArcs().flatMap(a => a.items).find(i => i.a === aid && i.per === 'day');
+    if (goalIt && +goalIt.goal === 1 && dayAmt(aid, viewDate) >= 1) { // toggle off a yes/no habit
+      const es = entriesOn(aid, viewDate); const last = es[es.length-1]; S.entries = S.entries.filter(e => e !== last); save(); renderAll(); return;
+    }
+    addEntry(aid, 1); buzz(12); renderAll(); celebrate(aid);
+  } else if (ac.type === 'timed') { toggleTimer(aid); }
+  else openLog(aid);
+}
+function celebrate(aid) {
+  const ac = act(aid);
+  for (const arc of activeArcs()) {
+    const it = arc.items.find(i => i.a === aid); if (!it || arc.kind !== 'habit') continue;
+    const p = itemProgress(it, viewDate);
+    if (p && p.met && p.v - (ac.type === 'tally' ? 1 : 0) < p.goal) { toast(it.per === 'week' ? `${esc(ac.name)}: <b>week target hit.</b>` : `${esc(ac.name)}: <b>done.</b>`); return; }
+    if (arcDayState(arc, viewDate) === 'done') { toast(`${esc(arc.name)}: <b>day complete.</b>`); return; }
+  }
+  toast(ac.type === 'tally' ? `${esc(ac.name)} <b>+1</b>` : `${esc(ac.name)}: <b>logged.</b>`);
+}
+// timer
+function toggleTimer(aid) {
+  if (S.timer && S.timer.a === aid) {
+    const mins = Math.max(1, Math.round((Date.now() - S.timer.start) / 60000));
+    const d = key(new Date(S.timer.start));
+    S.timer = null; addEntry(aid, mins, d); buzz([20,40,30]); toast(`${esc(act(aid).name)}: <b>${fmtMin(mins)}</b> logged`);
+  } else {
+    if (S.timer) toggleTimer(S.timer.a);
+    S.timer = { a: aid, start: Date.now() }; save(); buzz(15); toast(`${esc(act(aid).name)}: <b>timer running</b>`);
+  }
+  renderAll(); if (sheetOpen && sheetAct === aid) openLog(aid);
+}
+function tickTimer() {
+  if (!S.timer) return;
+  const s = Math.floor((Date.now() - S.timer.start) / 1000);
+  const t = `${Math.floor(s/3600) ? Math.floor(s/3600) + ':' + pad(Math.floor(s/60)%60) : Math.floor(s/60)}:${pad(s%60)}`;
+  const a = $('runT'); if (a) a.textContent = t; const b = $('lgTimer'); if (b) b.textContent = t;
+}
+setInterval(tickTimer, 1000);
+
+$('dPrev').onclick = () => { viewDate = addDays(viewDate, -1); renderToday(); };
+$('dNext').onclick = () => { if (viewDate < todayKey()) { viewDate = addDays(viewDate, 1); renderToday(); } };
+$('dBack').onclick = () => { viewDate = todayKey(); renderToday(); };
+$('todayAdd').onclick = () => openPickLog();
+$('runBox').onclick = e => { const el = e.target.closest('[data-act]'); if (el) openLog(el.dataset.act); };
+$('todayArcs').onclick = e => { const el = e.target.closest('[data-arc]'); if (el) openArc(el.dataset.arc); };
+$('todayActs').onclick = e => {
+  const q = e.target.closest('[data-q]'); if (q) { e.stopPropagation(); quick(q.dataset.q); return; }
+  const el = e.target.closest('[data-act]'); if (el) openLog(el.dataset.act);
+};
+
+// ---------------- ACTIVITIES ----------------
+function renderActs() {
+  const tk = todayKey(), ws = wkStart(tk);
+  $('actList').innerHTML = S.activities.length ? S.activities.map(ac => {
+    const c = col(ac.color), w = amount(ac.id, ws, addDays(ws, 6)).sum, t = dayAmt(ac.id, tk);
+    const show = ac.type === 'tally' ? [w, 'This week'] : t ? [t, 'Today'] : [w, 'This week'];
+    return `<div class="stack act" style="--c:${c}" data-act="${esc(ac.id)}">${symHTML(ac.sym, c, null, 46)}<div class="nm">${esc(ac.name)}</div><div class="val"><b>${esc(fmtVal(ac, show[0]))}</b><small>${show[1]}</small></div></div>`;
+  }).join('') : `<div class="empty">nothing tracked yet.</div>`;
+  // mini grid: last 28 days, intensity = share of activities logged
+  const n = S.activities.length || 1; let g = '';
+  const start = addDays(wkStart(tk), -21);
+  for (let i = 0; i < 28; i++) {
+    const d = addDays(start, i); if (d > tk) { g += '<i style="background:transparent;border:1px solid #1e1e23"></i>'; continue; }
+    const c = new Set(S.entries.filter(e => e.d === d).map(e => e.a)).size / n;
+    g += `<i class="${c >= .99 ? 'l3' : c >= .5 ? 'l2' : c > 0 ? 'l1' : ''}"></i>`;
+  }
+  $('miniGrid').innerHTML = g;
+}
+$('actList').onclick = e => { const el = e.target.closest('[data-act]'); if (el) openLog(el.dataset.act); };
+$('actAdd').onclick = $('wAdd').onclick = () => openSelectActivity();
+$('wGrid').onclick = () => go('arcs');
+$('actMore').onclick = $('arcMore').onclick = () => go('set');
+
+// ---------------- ARCS ----------------
+function renderArcs() {
+  const tk = todayKey();
+  const sorted = S.arcs.slice().sort((a, b) => ((b.start <= tk && (!b.end || b.end >= tk)) - (a.start <= tk && (!a.end || a.end >= tk))) || (a.start < b.start ? 1 : -1));
+  $('arcList').innerHTML = sorted.length ? sorted.map(a => arcCard(a)).join('') : `<div class="empty">no arcs yet. an arc is a season with a start and a finish line. tap the hexagon to start one.</div>`;
+}
+$('arcList').onclick = e => { const el = e.target.closest('[data-arc]'); if (el) openArc(el.dataset.arc); };
+$('arcAdd').onclick = () => openSelectArc();
+
+// ---------------- SETTINGS ----------------
+function renderSet() { document.querySelectorAll('#wsSeg button').forEach(b => b.classList.toggle('on', +b.dataset.v === S.weekStart)); }
+$('wsSeg').onclick = e => { const b = e.target.closest('button'); if (!b) return; S.weekStart = +b.dataset.v; save(); renderAll(); };
+$('acctBtn').onclick = async () => {
+  if (me) { if (!$('acctBtn').dataset.armed) { $('acctBtn').dataset.armed = 1; $('acctBtn').textContent = 'tap to confirm'; setTimeout(() => { if ($('acctBtn')) { delete $('acctBtn').dataset.armed; renderAcct(); } }, 3000); return; }
+    delete $('acctBtn').dataset.armed; if (dirty) await flush(); await sb.auth.signOut(); me = null; renderAcct(); toast('signed out. <b>data kept on this phone.</b>'); }
+  else openAuth();
+};
+$('impBtn').onclick = () => {
+  openSheet(`<div class="sh-bar"><span></span>${xBtn('imX')}</div><div class="sh-title">Import a backup</div>
+    <p class="authp">Paste the JSON you copied from Settings → Copy a backup. This replaces what's on this device${me ? ' and in your account' : ''}.</p>
+    <textarea class="impta" id="imTa" placeholder='{"v":2,...}'></textarea><div class="autherr" id="imErr"></div>
+    <button class="wide acc" id="imGo">replace with this backup</button>`, true);
+  $('imX').onclick = closeSheet;
+  $('imGo').onclick = () => {
+    let o; try { o = JSON.parse($('imTa').value); } catch(e) { $('imErr').textContent = 'that isn\'t valid JSON. copy the whole backup and try again.'; return; }
+    const n = normalise(o); if (!n || !Array.isArray(n.activities)) { $('imErr').textContent = 'that doesn\'t look like a Winter Arc backup.'; return; }
+    S = n; viewDate = todayKey(); save(); closeSheet(); toast(`backup imported. <b>${n.entries.length} logs.</b>`);
+  };
+};
+$('copyBk').onclick = async e => { try { await navigator.clipboard.writeText(JSON.stringify(S)); e.target.textContent = 'copied'; } catch(_) { e.target.textContent = 'not allowed here'; } setTimeout(() => e.target.textContent = 'copy JSON', 2000); };
+$('resetBtn').onclick = e => { const b = e.target; if (!b.dataset.armed) { b.dataset.armed = 1; b.textContent = 'tap to confirm'; setTimeout(() => { delete b.dataset.armed; b.textContent = 'reset'; }, 3000); return; }
+  const ws = S.weekStart; S = seed(todayKey()); S.weekStart = ws; viewDate = todayKey(); save(); renderAll(); delete b.dataset.armed; b.textContent = 'reset'; toast('fresh start. <b>day 1.</b>'); };
+
+// ---------------- sheet framework ----------------
+let sheetOpen = false, sheetAct = null, sheetCtx = null;
+function openSheet(html, full) {
+  $('sheetBody').innerHTML = html; $('sheet').classList.toggle('full', !!full);
+  $('sheet').classList.add('on'); $('scrim').classList.add('on'); document.body.classList.add('locked'); sheetOpen = true;
+  $('sheetBody').scrollTop = 0;
+}
+function closeSheet() { $('sheet').classList.remove('on'); $('scrim').classList.remove('on'); document.body.classList.remove('locked'); sheetOpen = false; sheetAct = null; sheetCtx = null; renderAll(); }
+$('scrim').onclick = closeSheet;
+const xBtn = (id, cls) => `<button class="cbtn ${cls||''}" id="${id}" aria-label="Close"><span class="x-red">✕</span></button>`;
+const okBtn = (id, dis) => `<button class="cbtn ${dis ? 'dis' : ''}" id="${id}" aria-label="Save"><span class="ok-green">✓</span></button>`;
+const ticker = (parts, c) => { const s = parts.map(p => `<em>${p[0]}</em> ${p[1]}`).join(' <s>•</s> ') + ' <s>•</s> '; return `<div class="ticker" style="--c:${c}"><span class="tick-in">${s}${s}</span></div>`; };
+
+// ---- pick activity to log ----
+function openPickLog() {
+  if (!S.activities.length) { openSelectActivity(); return; }
+  openSheet(`<div class="sh-bar">${xBtn('shX')}<span></span></div><div class="sh-title">Log</div>
+    ${S.activities.map(ac => `<div class="stack act" style="--c:${col(ac.color)}" data-act="${esc(ac.id)}">${symHTML(ac.sym, col(ac.color), null, 40)}<div class="nm">${esc(ac.name)}</div><div class="val"><small>${TYPE_LABEL[ac.type].toLowerCase()}</small></div></div>`).join('')}`);
+  $('shX').onclick = closeSheet;
+  $('sheetBody').onclick = e => { const el = e.target.closest('[data-act]'); if (el) openLog(el.dataset.act); };
+}
+
+// ---- log sheet ----
+function openLog(aid) {
+  const ac = act(aid); if (!ac) return; sheetAct = aid;
+  const c = col(ac.color), d = viewDate, today = dayAmt(aid, d), tk = todayKey(), ws = wkStart(tk);
+  const wk = amount(aid, ws, addDays(ws, 6)).sum, all = amount(aid, '0000-00-00', '9999-99-99');
+  // streak of days with any entry
+  let streak = 0, dd = dayAmt(aid, tk) > 0 ? tk : addDays(tk, -1); while (dayAmt(aid, dd) > 0) { streak++; dd = addDays(dd, -1); }
+  let body = '';
+  const dayLbl = d === tk ? 'today' : fmtShort(d).toLowerCase();
+  if (ac.type === 'tally') {
+    body = `<div class="bignum" id="lgNum">${round1(today)}</div><div class="bigcap">${dayLbl}</div>
+      <div class="tally-btns"><button class="tb" id="lgMinus">−</button><button class="tb plus" id="lgPlus">+1</button></div>
+      <div class="chips">${[5,10,20,50].map(n => `<button class="chip" data-add="${n}">+${n}</button>`).join('')}</div>`;
+  } else if (ac.type === 'timed') {
+    const running = S.timer && S.timer.a === aid;
+    body = `<div class="bignum mono" id="lgTimer">${running ? '0:00' : fmtMin(today)}</div><div class="bigcap">${running ? 'running' : dayLbl + ' total'}</div>
+      <button class="wide ${running ? 'prim' : 'acc'}" id="lgTimerBtn" style="--c:${c}">${running ? '■ stop &amp; log' : '▶ start timer'}</button>
+      <div class="chips">${[10,15,20,30,45,60,90].map(n => `<button class="chip" data-add="${n}">+${fmtMin(n)}</button>`).join('')}</div>`;
+  } else {
+    body = `<div class="bignum mono" style="font-size:44px">${esc(fmtVal(ac, today))}</div><div class="bigcap">${dayLbl}</div>
+      <div class="meas"><input id="lgVal" inputmode="decimal" placeholder="0"><span class="u">${esc(ac.unit || '')}</span></div>
+      <input class="note-in" id="lgNote" maxlength="40" placeholder="note (e.g. 5 × 8, felt strong)">
+      <button class="wide acc" id="lgAdd">log it</button>`;
+  }
+  const hist = S.entries.filter(e => e.a === aid).slice(-12).reverse();
+  // 12-week heat for this activity
+  let heat = ''; const hs = addDays(wkStart(tk), -77); const vals = [];
+  for (let i = 0; i < 84; i++) { const x = addDays(hs, i); vals.push(x > tk ? null : dayAmt(aid, x)); }
+  const mx = Math.max(1, ...vals.filter(v => v != null));
+  vals.forEach(v => { heat += v == null ? '<i class="f"></i>' : `<i class="${!v ? '' : v / mx > .66 ? 'l3' : v / mx > .33 ? 'l2' : 'l1'}"></i>`; });
+  openSheet(`<div class="sh-bar">${xBtn('shX')}<button class="cbtn" id="lgEdit" aria-label="Edit">✎</button></div>
+    <div class="lg-head" style="--c:${c}">${symHTML(ac.sym, c, null, 52)}<div><div class="nm">${esc(ac.name)}</div><small>${TYPE_LABEL[ac.type].toLowerCase()}${ac.unit ? ' · ' + esc(ac.unit) : ''}</small></div></div>
+    <div style="--c:${c}">${body}
+    <div class="stats3"><div class="st"><b>${esc(fmtVal(ac, wk))}</b><small>this week</small></div><div class="st"><b>${streak}</b><small>day streak</small></div><div class="st"><b>${esc(ac.type === 'measured' ? all.count + '×' : fmtVal(ac, all.sum))}</b><small>all time</small></div></div>
+    <div class="label-sect" style="margin-top:22px">12 weeks</div><div class="heat">${heat}</div>
+    <div class="hist">${hist.length ? hist.map(e => `<div class="he"><span>${fmtShort(e.d)}${e.n ? ' · ' + esc(e.n) : ''}</span><b>${ac.type === 'tally' ? '+' + round1(e.v) : esc(fmtVal(ac, e.v))}</b><button class="x" data-del="${esc(e.id)}" aria-label="Delete entry">×</button></div>`).join('') : '<div class="empty">no entries yet.</div>'}</div></div>`);
+  $('shX').onclick = closeSheet;
+  $('lgEdit').onclick = () => openActivityForm(ac.type, ac);
+  const rerender = () => { renderAll(); openLog(aid); };
+  $('sheetBody').onclick = e => {
+    const del = e.target.closest('[data-del]'); if (del) { S.entries = S.entries.filter(x => x.id !== del.dataset.del); save(); rerender(); return; }
+    const add = e.target.closest('[data-add]'); if (add) { addEntry(aid, +add.dataset.add); buzz(12); rerender(); celebrate(aid); return; }
+  };
+  if (ac.type === 'tally') {
+    $('lgPlus').onclick = () => { addEntry(aid, 1); buzz(12); rerender(); celebrate(aid); };
+    $('lgMinus').onclick = () => { const es = entriesOn(aid, d); if (!es.length) return; const last = es[es.length-1];
+      if (last.v > 1) last.v -= 1; else S.entries = S.entries.filter(x => x !== last); save(); rerender(); };
+  } else if (ac.type === 'timed') { $('lgTimerBtn').onclick = () => toggleTimer(aid); tickTimer(); }
+  else {
+    const go2 = () => { const v = parseFloat(($('lgVal').value || '').replace(',', '.')); if (!isFinite(v) || v <= 0) { $('lgVal').focus(); return; } addEntry(aid, v, d, $('lgNote').value.trim()); buzz(12); rerender(); celebrate(aid); };
+    $('lgAdd').onclick = go2; $('lgVal').onkeydown = e => { if (e.key === 'Enter') go2(); };
+  }
+}
+
+// ---- select activity type ----
+function openSelectActivity() {
+  const cards = [
+    ['timed','Timed Activity','Sessions with a clock on them.', [['Mobility','20m today'],['Reading','35m'],['Boxing','1h this week'],['Cold plunge','3m'],['Stretch','15m']], 'ember'],
+    ['tally','Simple Tally','Great for habits or simple activities.', [['Gym','3 this week'],['Pull-ups','25 today'],['No alcohol','12 days'],['In bed by 11','✓'],['Cold shower','4']], 'acid'],
+    ['measured','Measured Tally','For measurements beyond time.', [['Squat','5 × 80 kg'],['Run','5.2 km'],['Steps','9,412'],['Weight','78.4 kg'],['Pages','30']], 'frost'],
+  ];
+  openSheet(`<div class="sh-bar"><span></span>${xBtn('shX')}</div><div class="sh-title">Select Activity</div>
+    ${cards.map(([t, h, p, tk, cc]) => `<div class="stack pick" style="--c:${col(cc)}" data-type="${t}"><div class="h"><b>${h}</b><span>›</span></div><p>${p}</p>${ticker(tk, col(cc))}</div>`).join('')}
+    <div class="label-sect" style="margin-top:20px">inspiration</div>
+    <div class="agrid">${[['Gym','dumbbell','acid','tally',''],['Run','run','frost','measured','km'],['Mobility','meditate','sage','timed',''],['Pull-ups','pullup','bone','tally','']].map(x => `<div class="stack acard" style="--c:${col(x[2])}" data-insp='${esc(JSON.stringify(x))}'>${symHTML(x[1], col(x[2]), null, 40)}<b>${x[0]}</b><small>${TYPE_LABEL[x[3]].toLowerCase()}</small></div>`).join('')}</div>`, true);
+  $('shX').onclick = closeSheet;
+  $('sheetBody').onclick = e => {
+    const p = e.target.closest('[data-type]'); if (p) { openActivityForm(p.dataset.type); return; }
+    const i = e.target.closest('[data-insp]'); if (i) { const [name, sym, color, type, unit] = JSON.parse(i.dataset.insp); openActivityForm(type, null, { name, sym, color, unit }); }
+  };
+}
+// ---- activity form ----
+function openActivityForm(type, existing, preset) {
+  const f = existing ? { ...existing, sym: iconKey(existing.sym) } : { id: uid(), name: '', sym: 'dumbbell', color: 'acid', type, unit: type === 'measured' ? 'kg' : '', ...(preset || {}) };
+  const units = ['kg','km','reps','steps','pages','min','mi','lb'];
+  const draw = () => {
+    openSheet(`<div class="sh-bar">${xBtn('fX')}${okBtn('fOk', !f.name.trim())}</div><div class="sh-title">${TYPE_LABEL[f.type]}</div>
+      <div class="fl">Name</div><div class="grp"><div class="r"><input type="text" id="fName" maxlength="32" placeholder="${f.type === 'timed' ? 'Mobility' : f.type === 'measured' ? 'Squat' : 'Gym'}" value="${esc(f.name)}"></div></div>
+      <div class="fl">Symbol</div><div class="grp"><div class="syms" id="fSyms">${SYMS.map(s => `<button class="${s === f.sym ? 'on' : ''}" data-s="${s}" aria-label="${s}">${iconSVG(s)}</button>`).join('')}</div></div>
+      <div class="fl">Colour</div><div class="grp"><div class="cols" id="fCols">${Object.entries(COLORS).map(([k, v]) => `<button class="${k === f.color ? 'on' : ''}" style="--c:${col(k)}" data-c="${k}" aria-label="${k}"></button>`).join('')}</div></div>
+      ${f.type === 'measured' ? `<div class="fl">Measurements</div><div class="grp"><div class="r"><span>Unit</span><div class="seg" id="fUnits" style="flex-wrap:wrap;justify-content:flex-end">${units.map(u => `<button class="${u === f.unit ? 'on' : ''}" data-u="${u}">${u}</button>`).join('')}</div></div>
+        <div class="r"><span>Custom unit</span><input type="text" id="fUnit" maxlength="10" style="text-align:right;max-width:120px" placeholder="e.g. laps" value="${units.includes(f.unit) ? '' : esc(f.unit)}"></div></div>` : ''}
+      ${existing ? `<button class="wide danger" id="fDel">delete activity</button>` : ''}`, true);
+    $('fX').onclick = () => existing ? openLog(existing.id) : closeSheet();
+    $('fName').oninput = e => { f.name = e.target.value; $('fOk').classList.toggle('dis', !f.name.trim()); };
+    $('fSyms').onclick = e => { const b = e.target.closest('[data-s]'); if (!b) return; f.sym = b.dataset.s; document.querySelectorAll('#fSyms button').forEach(x => x.classList.toggle('on', x === b)); };
+    $('fCols').onclick = e => { const b = e.target.closest('[data-c]'); if (!b) return; f.color = b.dataset.c; document.querySelectorAll('#fCols button').forEach(x => x.classList.toggle('on', x === b)); };
+    if ($('fUnits')) { $('fUnits').onclick = e => { const b = e.target.closest('[data-u]'); if (!b) return; f.unit = b.dataset.u; $('fUnit').value = ''; document.querySelectorAll('#fUnits button').forEach(x => x.classList.toggle('on', x === b)); };
+      $('fUnit').oninput = e => { if (e.target.value.trim()) { f.unit = e.target.value.trim(); document.querySelectorAll('#fUnits button').forEach(x => x.classList.remove('on')); } }; }
+    $('fOk').onclick = () => {
+      if (!f.name.trim()) return; f.name = f.name.trim();
+      if (existing) Object.assign(existing, f); else S.activities.push(f);
+      save(); toast(existing ? 'saved.' : `${esc(f.name)}: <b>added.</b>`);
+      if (existing) openLog(existing.id); else closeSheet();
+    };
+    if (existing) $('fDel').onclick = e => { const b = e.target; if (!b.dataset.armed) { b.dataset.armed = 1; b.textContent = 'tap again: deletes all its logs'; return; }
+      S.activities = S.activities.filter(a => a.id !== existing.id); S.entries = S.entries.filter(x => x.a !== existing.id);
+      S.arcs.forEach(a => a.items = a.items.filter(i => i.a !== existing.id)); if (S.timer && S.timer.a === existing.id) S.timer = null; save(); closeSheet(); };
+    if (!existing) setTimeout(() => $('fName') && $('fName').focus(), 350);
+  };
+  draw();
+}
+
+// ---- select arc ----
+function previewHex(kind, c) {
+  const tk = todayKey(); let h = '<div class="hexrow" style="padding:6px 0 0">';
+  for (let i = 0; i < 7; i++) { const d = addDays(tk, i); const lab = i === 0 ? START : i === 6 ? FLAG : parse(d).toLocaleDateString('en-GB',{weekday:'narrow'});
+    h += `<div><div class="dl">${lab}</div>${hexSVG(kind === 'habit' && i === 0 ? 'done' : 'empty', c, '')}<div class="dn">${parse(d).getDate()}</div></div>`; }
+  return h + '</div>';
+}
+function openSelectArc() {
+  openSheet(`<div class="sh-bar"><span></span>${xBtn('shX')}</div><div class="sh-title">Select Arc</div>
+    <div class="stack pick" style="--c:${col('acid')}" data-kind="habit"><div class="h"><b>Habit Arc</b><span>›</span></div><p>Build consistency with streaks &amp; goals.</p>${previewHex('habit', col('acid'))}</div>
+    <div class="stack pick" style="--c:${col('frost')}" data-kind="unscripted"><div class="h"><b>Unscripted Arc</b><span>›</span></div><p>Explore a more flexible routine. No targets, just record.</p>${previewHex('unscripted', col('frost'))}</div>
+    <div class="label-sect" style="margin-top:20px">inspiration</div>
+    <div class="agrid">${[['7 Day Reset','flame','ember',7],['30 Days Hard','kettlebell','rust',30],['66 Day Habit','wall','bone',66],['Dry January','ban','frost',31]].map(x => `<div class="stack acard" style="--c:${col(x[2])}" data-insp='${esc(JSON.stringify(x))}'>${symHTML(x[1], col(x[2]), null, 40)}<b>${x[0]}</b><small>habit arc · ${x[3]} days</small></div>`).join('')}</div>`, true);
+  $('shX').onclick = closeSheet;
+  $('sheetBody').onclick = e => {
+    const p = e.target.closest('[data-kind]'); if (p) { openArcForm(p.dataset.kind); return; }
+    const i = e.target.closest('[data-insp]'); if (i) { const [name, sym, color, days] = JSON.parse(i.dataset.insp); openArcForm('habit', null, { name, sym, color, end: addDays(todayKey(), days - 1) }); }
+  };
+}
+// ---- arc form ----
+function openArcForm(kind, existing, preset) {
+  const f = existing ? { ...JSON.parse(JSON.stringify(existing)), sym: iconKey(existing.sym) } : { id: uid(), name: '', sym: 'snow', color: kind === 'habit' ? 'acid' : 'frost', kind, start: todayKey(), end: null, items: [], ...(preset || {}) };
+  const draw = () => {
+    const goalRows = f.items.map((it, i) => { const ac = act(it.a); if (!ac) return '';
+      const step = ac.type === 'timed' ? 5 : ac.type === 'measured' ? (ac.unit === 'steps' ? 1000 : 1) : 1;
+      return `<div class="goalrow" data-i="${i}" style="--c:${col(ac.color)}">${symHTML(ac.sym, col(ac.color), null, 40)}<div class="nm">${esc(ac.name)}
+        ${f.kind === 'habit' ? `<div style="font-size:12px;color:var(--ink3);margin-top:4px;font-weight:400">${ac.type === 'timed' ? 'minutes' : ac.type === 'measured' ? esc(ac.unit || 'amount') : 'times'}</div>` : ''}</div>
+        ${f.kind === 'habit' ? `<div class="stepper"><button data-g="-${step}">−</button><b>${(+it.goal).toLocaleString('en-GB')}</b><button data-g="${step}">+</button></div><div class="seg"><button class="${it.per !== 'week' ? 'on' : ''}" data-per="day">day</button><button class="${it.per === 'week' ? 'on' : ''}" data-per="week">wk</button></div>` : ''}
+        <button class="x" style="background:none;border:none;color:var(--ink3);font-size:18px;cursor:pointer" data-rm="${i}">×</button></div>`; }).join('');
+    openSheet(`<div class="sh-bar">${xBtn('aX')}${okBtn('aOk', !f.name.trim())}</div><div class="sh-title">${f.kind === 'habit' ? 'Habit Arc' : 'Unscripted Arc'}</div>
+      <div class="fl">Name</div><div class="grp"><div class="r"><input type="text" id="aName" maxlength="32" placeholder="Winter Arc" value="${esc(f.name)}"></div></div>
+      <div class="fl">Symbol</div><div class="grp"><div class="syms" id="aSyms">${SYMS.map(s => `<button class="${s === f.sym ? 'on' : ''}" data-s="${s}" aria-label="${s}">${iconSVG(s)}</button>`).join('')}</div></div>
+      <div class="fl">Colour</div><div class="grp"><div class="cols" id="aCols">${Object.entries(COLORS).map(([k, v]) => `<button class="${k === f.color ? 'on' : ''}" style="--c:${col(k)}" data-c="${k}" aria-label="${k}"></button>`).join('')}</div></div>
+      <div class="fl">Dates</div><div class="grp">
+        <div class="r"><span>▷ Start date</span><input type="date" id="aStart" value="${f.start}"></div>
+        <div class="r"><span>⚑ Set finish date</span><button class="sw ${f.end ? 'on' : ''}" id="aEndSw" aria-label="Set finish date"></button></div>
+        ${f.end ? `<div class="r"><span>Finish</span><input type="date" id="aEnd" value="${f.end}"></div>` : ''}</div>
+      <div class="fl">Activities ${f.kind === 'habit' ? '· goal per day or week' : ''}</div><div class="grp" id="aItems">${goalRows || '<div class="empty" style="padding:14px 16px">no activities in this arc yet.</div>'}</div>
+      <button class="wide" id="aAddAct">⊕ Add Activity</button>
+      ${existing ? `<button class="wide danger" id="aDel">delete arc</button>` : ''}`, true);
+    $('aX').onclick = () => existing ? openArc(existing.id) : closeSheet();
+    $('aName').oninput = e => { f.name = e.target.value; $('aOk').classList.toggle('dis', !f.name.trim()); };
+    $('aSyms').onclick = e => { const b = e.target.closest('[data-s]'); if (!b) return; f.sym = b.dataset.s; document.querySelectorAll('#aSyms button').forEach(x => x.classList.toggle('on', x === b)); };
+    $('aCols').onclick = e => { const b = e.target.closest('[data-c]'); if (!b) return; f.color = b.dataset.c; document.querySelectorAll('#aCols button').forEach(x => x.classList.toggle('on', x === b)); };
+    $('aStart').onchange = e => { if (e.target.value) f.start = e.target.value; };
+    $('aEndSw').onclick = () => { f.end = f.end ? null : (preset && preset.end) || WINTER_END; draw(); };
+    if ($('aEnd')) $('aEnd').onchange = e => { if (e.target.value) f.end = e.target.value; };
+    $('aItems').onclick = e => {
+      const row = e.target.closest('[data-i]'); if (!row) return; const it = f.items[+row.dataset.i];
+      const rm = e.target.closest('[data-rm]'); if (rm) { f.items.splice(+rm.dataset.rm, 1); draw(); return; }
+      const g = e.target.closest('[data-g]'); if (g) { it.goal = Math.max(1, (+it.goal || 1) + +g.dataset.g); draw(); return; }
+      const p = e.target.closest('[data-per]'); if (p) { it.per = p.dataset.per; draw(); }
+    };
+    $('aAddAct').onclick = () => openAddToArc(f, draw);
+    $('aOk').onclick = () => {
+      if (!f.name.trim()) return; f.name = f.name.trim();
+      if (f.end && f.end < f.start) { toast('finish date is before the start.'); return; }
+      if (existing) { const i = S.arcs.findIndex(a => a.id === existing.id); S.arcs[i] = f; } else S.arcs.push(f);
+      save(); toast(existing ? 'arc saved.' : `${esc(f.name)}: <b>arc started.</b>`); if (existing) openArc(f.id); else { closeSheet(); go('arcs'); }
+    };
+    if (existing) $('aDel').onclick = e => { const b = e.target; if (!b.dataset.armed) { b.dataset.armed = 1; b.textContent = 'tap again to delete (logs are kept)'; return; }
+      S.arcs = S.arcs.filter(a => a.id !== existing.id); save(); closeSheet(); };
+  };
+  draw();
+}
+// ---- add to arc ----
+function openAddToArc(f, back) {
+  const picked = new Set(f.items.map(i => i.a));
+  const draw = () => {
+    openSheet(`<div class="sh-bar"><button class="cbtn" id="tBack" aria-label="Back">‹</button><button class="cbtn" id="tNew" aria-label="New activity">+</button></div><div class="sh-title">Add to Arc</div>
+      ${S.activities.length ? `<div class="agrid">${S.activities.map(ac => `<div class="stack acard ${picked.has(ac.id) ? 'on' : ''}" style="--c:${col(ac.color)}" data-a="${esc(ac.id)}">${symHTML(ac.sym, col(ac.color), null, 40)}<span class="tickc">✓</span><b>${esc(ac.name)}</b><small>${TYPE_LABEL[ac.type].toLowerCase()}</small></div>`).join('')}</div>` : '<div class="empty">no activities yet. tap + to create one.</div>'}
+      <button class="wide prim" id="tDone">+ Add ${picked.size} ${picked.size === 1 ? 'Activity' : 'Activities'}</button>`, true);
+    $('tBack').onclick = back;
+    $('tNew').onclick = () => openSelectActivity();
+    $('sheetBody').onclick = e => { const c = e.target.closest('[data-a]'); if (!c) return; const id = c.dataset.a; picked.has(id) ? picked.delete(id) : picked.add(id); draw(); };
+    $('tDone').onclick = () => {
+      f.items = f.items.filter(i => picked.has(i.a));
+      picked.forEach(id => { if (!f.items.find(i => i.a === id)) { const ac = act(id); f.items.push({ a: id, goal: ac.type === 'timed' ? 20 : ac.type === 'measured' && ac.unit === 'steps' ? 8000 : 1, per: 'day' }); } });
+      back();
+    };
+  };
+  draw();
+}
+
+// ---- arc detail ----
+function openArc(id) {
+  const arc = S.arcs.find(a => a.id === id); if (!arc) return;
+  const c = col(arc.color), st = arcStats(arc), tk = todayKey();
+  const endW = arc.end ? wkStart(arc.end) : addDays(wkStart(tk), 7);
+  const lastW = arc.end ? endW : (wkStart(tk) > endW ? wkStart(tk) : endW);
+  let cal = `<div class="hexcal">${DOWS().map(d => `<div class="hd">${d}</div>`).join('')}<div></div>`;
+  let rows = 0;
+  for (let w = wkStart(arc.start); w <= lastW && rows < 60; w = addDays(w, 7), rows++) {
+    for (let i = 0; i < 7; i++) { const d = addDays(w, i); cal += `<div>${hexSVG(arcDayState(arc, d), c, d === tk ? 'today' : '', '')}</div>`; }
+    const m = arcWeekMet(arc, w); cal += `<div class="wk ${m ? 'met' : ''}">${w > tk ? '' : m === null ? '' : m ? '✓' : '·'}</div>`;
+  }
+  cal += '</div>';
+  const ws = wkStart(tk);
+  const goals = arc.items.map(it => { const ac = act(it.a); if (!ac) return '';
+    const p = arc.kind === 'habit' ? itemProgress(it, tk) : null; const w = amount(it.a, ws, addDays(ws, 6)).sum;
+    return `<div class="stack trow ${p && p.met ? 'met' : ''}" style="--c:${col(ac.color)}" data-act="${esc(ac.id)}">${symHTML(ac.sym, col(ac.color), p ? Math.min(1, p.v / p.goal) : null, 44)}<div class="tx"><div class="nm">${esc(ac.name)}</div>
+      <div class="pg">${p ? `${esc(fmtVal(ac, p.v))} / ${esc(fmtGoal(ac, p.goal))} ${p.per === 'week' ? 'this week' : 'today'}` : `${esc(fmtVal(ac, w))} this week`}</div>${p ? `<div class="bar-p"><i style="width:${Math.min(100, p.v / p.goal * 100)}%"></i></div>` : ''}</div></div>`; }).join('');
+  openSheet(`<div class="sh-bar">${xBtn('shX')}<button class="cbtn" id="arcEdit" aria-label="Edit arc">✎</button></div>
+    <div class="lg-head" style="--c:${c}">${symHTML(arc.sym, c, null, 52)}<div><div class="nm">${esc(arc.name)}</div><small>${arc.kind === 'habit' ? 'habit arc' : 'unscripted arc'} · ${fmtShort(arc.start)}${arc.end ? ' → ' + fmtShort(arc.end) : ' → open'}</small></div></div>
+    <div style="--c:${c}"><div class="stats3">
+      <div class="st"><b>${st.dayN >= 1 ? st.dayN : 0}${st.total ? '<span style="font-size:12px;color:var(--ink3)">/' + st.total + '</span>' : ''}</b><small>day</small></div>
+      <div class="st"><b>${arc.kind === 'habit' ? st.streak : st.active}</b><small>${arc.kind === 'habit' ? 'day streak' : 'days active'}</small></div>
+      <div class="st"><b>${arc.kind === 'habit' ? (arcWeekMet(arc, ws) !== null ? st.wstreak + ' wk' : st.best) : st.best}</b><small>${arc.kind === 'habit' && arcWeekMet(arc, ws) !== null ? 'week streak' : 'best streak'}</small></div></div>
+    ${arc.end && st.dayN >= 1 ? `<div class="bar-p" style="margin-top:14px;height:4px"><i style="width:${Math.min(100, st.dayN / st.total * 100)}%"></i></div><div style="font-family:var(--mono);font-size:11px;color:var(--ink3);margin-top:6px;text-align:right">${Math.max(0, st.total - st.dayN)} days to the finish line</div>` : ''}
+    <div class="label-sect">the arc</div><div class="stack flat" style="padding:14px 10px">${cal}</div>
+    <div class="label-sect">activities</div>${goals || '<div class="empty">no activities. tap ✎ to add some.</div>'}</div>`, true);
+  $('shX').onclick = closeSheet;
+  $('arcEdit').onclick = () => openArcForm(arc.kind, arc);
+  $('sheetBody').onclick = e => { const el = e.target.closest('[data-act]'); if (el) openLog(el.dataset.act); };
+}
+
+// ---------------- nav ----------------
+function go(v) {
+  cur = v;
+  document.querySelectorAll('.view').forEach(el => el.classList.toggle('on', el.id === 'v-' + v));
+  document.querySelectorAll('nav button').forEach(b => b.classList.toggle('on', b.dataset.v === v));
+  renderView(v); window.scrollTo({ top: 0 });
+}
+function renderView(v) { if (v === 'today') renderToday(); if (v === 'acts') renderActs(); if (v === 'arcs') renderArcs(); if (v === 'set') renderSet(); }
+function renderAll() { renderToday(); renderActs(); renderArcs(); renderSet(); }
+document.querySelector('nav').onclick = e => { const b = e.target.closest('button'); if (!b) return; if (sheetOpen) closeSheet(); if (b.dataset.v === 'today') viewDate = todayKey(); go(b.dataset.v); };
+let lastDay = todayKey();
+setInterval(() => { const t = todayKey(); if (t !== lastDay) { if (viewDate === lastDay) viewDate = t; lastDay = t; if (!sheetOpen) renderAll(); } }, 60000);
+
+
+// ---------------- theme ----------------
+const TH_KEY = 'winterarc.theme';
+const thPref = () => { try { return localStorage.getItem(TH_KEY) || 'dark'; } catch(e) { return 'dark'; } };
+const mqLight = window.matchMedia ? window.matchMedia('(prefers-color-scheme: light)') : null;
+function applyTheme() {
+  const p = thPref(), t = p === 'auto' ? (mqLight && mqLight.matches ? 'light' : 'dark') : p;
+  document.documentElement.dataset.theme = t;
+  const m = document.querySelector('meta[name=theme-color]'); if (m) m.content = t === 'light' ? '#f1f0ec' : '#060606';
+  document.querySelectorAll('#thSeg button').forEach(b => b.classList.toggle('on', b.dataset.t === p));
+}
+applyTheme();
+if (mqLight && mqLight.addEventListener) mqLight.addEventListener('change', () => { if (thPref() === 'auto') { applyTheme(); renderAll(); } });
+$('thSeg').onclick = e => { const b = e.target.closest('button'); if (!b) return; try { localStorage.setItem(TH_KEY, b.dataset.t); } catch(_) {} applyTheme(); renderAll(); };
+
+
+// ---------------- installable app: service worker + updates ----------------
+if ('serviceWorker' in navigator && location.protocol !== 'file:') {
+  let reloading = false;
+  navigator.serviceWorker.addEventListener('controllerchange', () => { if (!reloading) { reloading = true; location.reload(); } });
+  window.addEventListener('load', async () => {
+    try {
+      const reg = await navigator.serviceWorker.register('sw.js');
+      const offer = w => { const b = $('updBtn'); b.hidden = false; b.onclick = () => { b.textContent = 'updating…'; w.postMessage('skip'); }; };
+      if (reg.waiting && navigator.serviceWorker.controller) offer(reg.waiting);
+      reg.addEventListener('updatefound', () => { const w = reg.installing; if (!w) return; w.addEventListener('statechange', () => { if (w.state === 'installed' && navigator.serviceWorker.controller) offer(w); }); });
+      document.addEventListener('visibilitychange', () => { if (document.visibilityState === 'visible') reg.update().catch(() => {}); });
+    } catch(e) {}
+  });
+}
+
+// ---------------- boot ----------------
+const localV2 = normalise(lsGet(LS2));
+S = localV2 || normalise(lsGet(LS1)) || seed(todayKey());
+renderAll();
+setSync(false, 'connecting…');
+connect();
+})();
+</script>
+</body>
+</html>
